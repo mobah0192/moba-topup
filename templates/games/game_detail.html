@@ -1,0 +1,433 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ game.name }} - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb dengan desain  -->
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <a href="{% url 'games:list' %}" class="breadcrumb-home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+            <span class="breadcrumb-current">{{ game.name }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Game Header dengan background gradient -->
+<div class="game-header-modern">
+    <div class="container">
+        <div class="game-header-content">
+            <div class="game-header-left">
+                <div class="game-icon-large">
+                    {% if game.icon %}
+                        <img src="{{ game.icon.url }}" alt="{{ game.name }}">
+                    {% else %}
+                        <i class="fas fa-gamepad"></i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="game-header-right">
+                <h1 class="game-title-modern">{{ game.name }}</h1>
+                <p class="game-description-modern">{{ game.description }}</p>
+                <div class="game-stats-mini">
+                    <div class="stat-mini">
+                        <i class="fas fa-bolt"></i>
+                        <span>Proses Cepat</span>
+                    </div>
+                    <div class="stat-mini">
+                        <i class="fas fa-headset"></i>
+                        <span>24/7 Support</span>
+                    </div>
+                    <div class="stat-mini">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>100% Aman</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Game Items Grid - Bagian Kiri -->
+        <div class="col-lg-8">
+            <!-- Quick Info Bar -->
+            <div class="quick-info-bar">
+                <div class="info-item">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Klik item untuk memilih, lalu isi ID game Anda</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Proses otomatis kurang dari 1 menit</span>
+                </div>
+            </div>
+            
+            <h3 class="section-title-modern">
+                <span class="title-highlight">Pilih Item Top Up</span>
+                <small class="title-sub">(Klik item untuk memilih)</small>
+            </h3>
+            
+            {% if categories %}
+                {% for category in categories %}
+                <div class="category-section">
+                    <div class="category-header">
+                        <h4 class="category-name">{{ category.name }}</h4>
+                        {% if category.description %}
+                        <p class="category-description">{{ category.description }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="items-grid">
+                        {% for item in category.items.all %}
+                        <div class="item-card-wrapper">
+                            <div class="item-card-modern {% if item.is_popular %}popular{% endif %}" 
+                                 data-item-id="{{ item.id }}"
+                                 data-item-name="{{ item.name }}"
+                                 data-item-price="{{ item.price }}"
+                                 data-item-amount="{{ item.amount }}">
+                                
+                                {% if item.is_popular %}
+                                <div class="popular-ribbon">
+                                    <span>🔥 POPULER</span>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="item-content">
+                                    <div class="item-name-modern">{{ item.name }}</div>
+                                    <div class="item-amount">{{ item.amount }} {{ category.name }}</div>
+                                    <div class="item-price-modern">Rp {{ item.price|floatformat:0 }}</div>
+                                    
+                                    <!-- 🔴 UBAH BAGIAN INI - TAMBAHKAN 2 TOMBOL -->
+                                    <div class="item-actions">
+                                        <button class="btn-add-cart-modern" onclick="addToCart({{ item.id }}, event)">
+                                            <i class="fas fa-cart-plus"></i>
+                                            <span>Keranjang</span>
+                                        </button>
+                                        
+                                        <button class="btn-buy-now" onclick="buyNow({{ item.id }})">
+                                            <i class="fas fa-bolt"></i>
+                                            <span>Beli Langsung</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-items">
+                    <i class="fas fa-box-open"></i>
+                    <h4>Belum ada item tersedia</h4>
+                    <p>Item untuk game ini akan segera hadir</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Order Summary - Bagian Kanan (Sticky) -->
+<div class="col-lg-4">
+    <div class="order-summary-modern" id="orderSummary">
+        <div class="summary-header">
+            <i class="fas fa-shopping-bag"></i>
+            <h5>Ringkasan Order</h5>
+        </div>
+        
+        <div class="summary-body">
+            <div class="selected-item-preview" id="selectedItemPreview">
+                <div class="no-selection">
+                    <i class="fas fa-hand-pointer"></i>
+                    <p>Pilih item untuk mulai checkout</p>
+                </div>
+                <div class="selected-item-detail" style="display: none;">
+                    <div class="selected-item-name" id="selectedItemName"></div>
+                    <div class="selected-item-price" id="selectedItemPrice"></div>
+                </div>
+            </div>
+            
+            <!-- 🔴 HAPUS FORM, GANTI DENGAN DIV -->
+            <div class="checkout-form">
+                <input type="hidden" id="selectedItemId" value="">
+                
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="fas fa-user"></i>
+                        User ID / Game ID
+                    </label>
+                    <input type="text" 
+                           id="gameIdInput"
+                           class="form-control-modern game-id-input" 
+                           placeholder="Contoh: 12345678" 
+                           required>
+                    <small class="form-text-modern">
+                        <i class="fas fa-info-circle"></i>
+                        Masukkan ID game Anda dengan benar
+                    </small>
+                </div>
+                
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="fas fa-sort-numeric-up"></i>
+                        Jumlah
+                    </label>
+                    <div class="quantity-selector">
+                        <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">−</button>
+                        <input type="number" id="quantityInput" class="quantity-input" value="1" min="1" readonly>
+                        <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                    </div>
+                </div>
+                
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span class="total-price" id="totalPrice">Rp 0</span>
+                </div>
+                
+                <button class="btn-checkout-modern" id="checkoutBtn" onclick="buyNowFromSummary()" disabled>
+                    <i class="fas fa-bolt"></i>
+                    <span>Beli Sekarang</span>
+                </button>
+            </div>
+            
+            <div class="summary-footer">
+                <a href="{% url 'orders:cart_detail' %}" class="view-cart-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    Lihat Keranjang
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Payment Methods Preview -->
+        <div class="payment-methods-preview">
+            <p class="preview-title">Metode Pembayaran</p>
+            <div class="payment-icons">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-paypal"></i>
+                <i class="fas fa-credit-card"></i>
+                <span>+ Lainnya</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Modern -->
+<div class="toast-modern" id="toastNotification">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Item ditambahkan ke keranjang</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variabel global
+let selectedItem = {
+    id: null,
+    name: '',
+    price: 0,
+    amount: 0
+};
+
+// Fungsi Add to Cart
+function addToCart(itemId, event) {
+    event.stopPropagation();
+    
+    fetch(`/orders/cart/add/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Item ditambahkan ke keranjang!');
+            updateCartCount();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Gagal menambahkan item', 'error');
+    });
+}
+
+// Fungsi Beli Langsung dari tombol di item card
+function buyNow(itemId) {
+    const gameIdInput = document.querySelector('.game-id-input');
+    const gameId = gameIdInput ? gameIdInput.value.trim() : '';
+    
+    if (!gameId || gameId.length < 5) {
+        showNotification('Masukkan Game ID terlebih dahulu!', 'error');
+        gameIdInput?.focus();
+        return;
+    }
+    
+    const quantity = document.getElementById('quantityInput').value;
+    
+    // Redirect ke checkout
+    window.location.href = `/orders/checkout/?item_id=${itemId}&game_id=${gameId}&quantity=${quantity}`;
+}
+
+// 🔴 FUNGSI BARU - Beli Sekarang dari Ringkasan
+function buyNowFromSummary() {
+    if (!selectedItem.id) {
+        showNotification('Pilih item terlebih dahulu!', 'error');
+        return;
+    }
+    
+    const gameIdInput = document.getElementById('gameIdInput');
+    const gameId = gameIdInput ? gameIdInput.value.trim() : '';
+    
+    if (!gameId || gameId.length < 5) {
+        showNotification('Masukkan Game ID dengan benar!', 'error');
+        gameIdInput?.focus();
+        return;
+    }
+    
+    const quantity = document.getElementById('quantityInput').value;
+    
+    // Redirect ke checkout
+    window.location.href = `/orders/checkout/?item_id=${selectedItem.id}&game_id=${gameId}&quantity=${quantity}`;
+}
+
+// Fungsi untuk memilih item
+document.querySelectorAll('.item-card-modern').forEach(card => {
+    card.addEventListener('click', function() {
+        // Remove selected class dari semua card
+        document.querySelectorAll('.item-card-modern').forEach(c => {
+            c.classList.remove('selected');
+        });
+        
+        // Add selected class ke card yang diklik
+        this.classList.add('selected');
+        
+        // Simpan data item yang dipilih
+        selectedItem = {
+            id: this.dataset.itemId,
+            name: this.dataset.itemName,
+            price: parseInt(this.dataset.itemPrice),
+            amount: this.dataset.itemAmount
+        };
+        
+        // Update hidden input
+        document.getElementById('selectedItemId').value = selectedItem.id;
+        
+        // Update preview
+        document.getElementById('selectedItemName').textContent = selectedItem.name;
+        document.getElementById('selectedItemPrice').textContent = `Rp ${formatNumber(selectedItem.price)}`;
+        
+        // Tampilkan preview
+        document.querySelector('.no-selection').style.display = 'none';
+        document.querySelector('.selected-item-detail').style.display = 'block';
+        
+        // Update total price
+        updateTotalPrice();
+        
+        // Enable checkout button
+        document.getElementById('checkoutBtn').disabled = false;
+    });
+});
+
+// Fungsi update quantity
+function updateQuantity(change) {
+    const input = document.getElementById('quantityInput');
+    let value = parseInt(input.value) + change;
+    
+    if (value < 1) value = 1;
+    if (value > 99) value = 99;
+    
+    input.value = value;
+    
+    if (selectedItem.id) {
+        updateTotalPrice();
+    }
+}
+
+// Fungsi update total price
+function updateTotalPrice() {
+    const quantity = parseInt(document.getElementById('quantityInput').value);
+    const total = selectedItem.price * quantity;
+    document.getElementById('totalPrice').textContent = `Rp ${formatNumber(total)}`;
+}
+
+// Fungsi format number
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Fungsi show notification
+function showNotification(message, type = 'success') {
+    const toast = document.getElementById('toastNotification');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    toastMessage.textContent = message;
+    toast.className = `toast-modern show ${type}`;
+    
+    setTimeout(() => {
+        toast.className = 'toast-modern';
+    }, 3000);
+}
+
+// Fungsi update cart count
+function updateCartCount() {
+    fetch('/orders/cart/count/')
+        .then(response => response.json())
+        .then(data => {
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                if (data.count > 0) {
+                    cartCount.textContent = data.count;
+                    cartCount.classList.remove('d-none');
+                } else {
+                    cartCount.classList.add('d-none');
+                }
+            }
+        });
+}
+
+// Validasi Game ID
+document.querySelector('.game-id-input').addEventListener('input', function() {
+    const gameId = this.value.trim();
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    
+    if (gameId.length >= 5 && selectedItem.id) {
+        checkoutBtn.disabled = false;
+    } else {
+        checkoutBtn.disabled = true;
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Game detail page loaded');
+});
+
+
+// Fungsi untuk Beli Sekarang dari summary
+function buyNowFromSummary() {
+    if (!selectedItem.id) {
+        showNotification('Pilih item terlebih dahulu!', 'error');
+        return;
+    }
+    
+    const gameId = document.querySelector('.game-id-input').value.trim();
+    if (!gameId || gameId.length < 5) {
+        showNotification('Masukkan Game ID dengan benar!', 'error');
+        return;
+    }
+    
+    const quantity = document.getElementById('quantityInput').value;
+    
+    window.location.href = `/orders/checkout/?item_id=${selectedItem.id}&game_id=${gameId}&quantity=${quantity}`;
+}
+</script>
+{% endblock %}

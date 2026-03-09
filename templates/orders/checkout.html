@@ -1,0 +1,818 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+    <div class="container py-5">
+        <!-- Header dengan Progress Bar -->
+        <div class="checkout-header mb-5">
+            <h1 class="checkout-title">
+                <i class="fas fa-shopping-bag me-3 text-primary"></i>
+                Checkout
+            </h1>
+            
+            <!-- Progress Steps -->
+            <div class="checkout-steps">
+                <div class="step completed">
+                    <div class="step-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="step-label">Keranjang</div>
+                </div>
+                <div class="step-line completed"></div>
+                
+                <div class="step active">
+                    <div class="step-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="step-label">Checkout</div>
+                </div>
+                <div class="step-line"></div>
+                
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="step-label">Pembayaran</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- KIRI: Form Checkout -->
+            <div class="col-lg-7 mb-4">
+                <div class="checkout-form-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-invoice me-2"></i>
+                            Detail Order
+                        </h5>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form method="post" id="checkoutForm">
+                            {% csrf_token %}
+                            
+                            <!-- Game ID -->
+                            <div class="form-group-modern mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Game ID / User ID
+                                </label>
+                                <input type="text" 
+                                       name="game_id" 
+                                       class="form-control-modern" 
+                                       placeholder="Contoh: 12345678" 
+                                       value="{{ form.game_id.value|default:'' }}"
+                                       required>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i>
+                                    Masukkan ID game Anda dengan benar
+                                </small>
+                            </div>
+                            
+                            <!-- Server (Opsional) -->
+                            <div class="form-group-modern mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-server"></i>
+                                    Server (Opsional)
+                                </label>
+                                <input type="text" 
+                                       name="game_server" 
+                                       class="form-control-modern" 
+                                       placeholder="Contoh: Asia / 1234" 
+                                       value="{{ form.game_server.value|default:'' }}">
+                            </div>
+                            
+                            <!-- Quantity -->
+                            <div class="form-group-modern mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-sort-numeric-up"></i>
+                                    Jumlah
+                                </label>
+                                <div class="quantity-selector-modern">
+                                    <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">−</button>
+                                    <input type="number" 
+                                           name="quantity" 
+                                           id="quantityInput"
+                                           class="quantity-input" 
+                                           value="{{ form.quantity.value|default:1 }}" 
+                                           min="1" 
+                                           readonly>
+                                    <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                                </div>
+                            </div>
+                            
+                           <!-- Payment Methods -->
+<div class="form-group-modern mb-4">
+    <label class="form-label">
+        <i class="fas fa-credit-card"></i>
+        Metode Pembayaran
+    </label>
+    
+     <!-- Filter Kategori -->
+    <div class="payment-categories mb-3">
+        <button type="button" class="category-btn active" onclick="filterPayments('all')">
+            Semua
+        </button>
+        <button type="button" class="category-btn" onclick="filterPayments('bank')">
+            <i class="fas fa-university"></i> Transfer Bank
+        </button>
+        <button type="button" class="category-btn" onclick="filterPayments('ewallet')">
+            <i class="fas fa-wallet"></i> E-Wallet
+        </button>
+        <button type="button" class="category-btn" onclick="filterPayments('qris')">
+            <i class="fas fa-qrcode"></i> QRIS
+        </button>
+    </div>
+
+        
+    <!-- Daftar Metode Pembayaran dari Database -->
+    <div class="payment-grid" id="payment-grid">
+        {% for method in payment_methods %}
+        <label class="payment-card" data-category="{{ method.category }}">
+            <input type="radio" 
+                   name="payment_method" 
+                   value="{{ method.code }}" 
+                   class="payment-radio"
+                   {% if forloop.first %}checked{% endif %}>
+            <div class="payment-card-content">
+                {% if method.logo %}
+                    <img src="{{ method.logo.url }}" 
+                         alt="{{ method.name }}" 
+                         class="payment-logo">
+                {% else %}
+                    <i class="fas {% if method.category == 'bank' %}fa-university{% elif method.category == 'ewallet' %}fa-wallet{% else %}fa-qrcode{% endif %} payment-icon"></i>
+                {% endif %}
+                <span class="payment-name">{{ method.name }}</span>
+                <span class="payment-type">{{ method.description|default:method.get_category_display }}</span>
+            </div>
+        </label>
+        {% endfor %}
+    </div>
+</div>
+                 
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn-checkout-submit">
+                                <i class="fas fa-lock me-2"></i>
+                                Lanjut ke Pembayaran
+                                <i class="fas fa-arrow-right ms-auto"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- KANAN: Ringkasan Order -->
+            <div class="col-lg-5">
+                <div class="order-summary-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shopping-bag me-2"></i>
+                            Ringkasan Order
+                        </h5>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Daftar Item -->
+                        <div class="order-items">
+                            {% for item in cart_items %}
+                            <div class="order-item">
+                                <div class="item-image">
+                                    <i class="fas fa-gamepad"></i>
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-game">{{ item.game_name }}</div>
+                                    <div class="item-name">{{ item.item_name }}</div>
+                                    <div class="item-meta">
+                                        <span class="item-quantity">{{ item.quantity }}x</span>
+                                        <span class="item-price">Rp {{ item.price|floatformat:0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="item-subtotal">
+                                    Rp {{ item.total_price|floatformat:0 }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Total -->
+                        <div class="order-total">
+                            <div class="total-row">
+                                <span>Subtotal</span>
+                                <span>Rp {{ cart_total|floatformat:0 }}</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Biaya Layanan</span>
+                                <span class="text-success">Gratis</span>
+                            </div>
+                            <div class="total-row grand-total">
+                                <span>Total Pembayaran</span>
+                                <span class="total-amount">Rp {{ cart_total|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Info -->
+                        <div class="payment-info">
+                            <i class="fas fa-shield-alt"></i>
+                            <div class="payment-info-text">
+                                <strong>Pembayaran Aman</strong>
+                                <span>Data Anda terenkripsi dengan aman</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Back to Cart Link -->
+                        <a href="{% url 'orders:cart_detail' %}" class="back-to-cart">
+                            <i class="fas fa-arrow-left"></i>
+                            Kembali ke Keranjang
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecf2 100%);
+}
+
+.checkout-header {
+    text-align: center;
+}
+
+.checkout-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 2rem;
+}
+
+/* Progress Steps */
+.checkout-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #cbd5e1;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+}
+
+.step.completed .step-icon {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.step.active .step-icon {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 0 0 5px rgba(102,126,234,0.2);
+}
+
+.step-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.step.active .step-label {
+    color: #667eea;
+}
+
+.step.completed .step-label {
+    color: #10b981;
+}
+
+.step-line {
+    width: 100px;
+    height: 2px;
+    background: #cbd5e1;
+}
+
+.step-line.completed {
+    background: #10b981;
+}
+
+/* Cards */
+.checkout-form-card, .order-summary-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    border: none;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1.25rem 1.5rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Form Elements */
+.form-group-modern {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.form-label i {
+    color: #667eea;
+}
+
+.form-control-modern {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: white;
+}
+
+.form-control-modern:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+    outline: none;
+}
+
+/* Quantity Selector */
+.quantity-selector-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 0.25rem;
+    border: 2px solid #e2e8f0;
+}
+
+.quantity-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    background: white;
+    border-radius: 10px;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.quantity-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: scale(1.05);
+}
+
+.quantity-input {
+    width: 80px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Payment Options */
+.payment-option {
+    display: block;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.payment-option:hover {
+    border-color: #667eea;
+}
+
+.payment-option input[type="radio"] {
+    display: none;
+}
+
+.payment-option input[type="radio"]:checked + .payment-option-content {
+    color: #667eea;
+}
+
+.payment-option input[type="radio"]:checked ~ .payment-option-content {
+    border-color: #667eea;
+}
+
+.payment-option-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.payment-option-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-option-text small {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* Submit Button */
+.btn-checkout-submit {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-checkout-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(16,185,129,0.3);
+}
+
+/* Order Items */
+.order-items {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+    padding-right: 0.5rem;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-image {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea20, #764ba220);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #667eea;
+    font-size: 1.5rem;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-game {
+    font-size: 0.8rem;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.item-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.item-subtotal {
+    font-weight: 700;
+    color: #10b981;
+}
+
+/* Order Total */
+.order-total {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: #64748b;
+}
+
+.grand-total {
+    border-top: 2px dashed #e2e8f0;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.total-amount {
+    color: #10b981;
+    font-size: 1.3rem;
+}
+
+/* Payment Info */
+.payment-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #f0f9ff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-info i {
+    font-size: 2rem;
+    color: #0ea5e9;
+}
+
+.payment-info-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-info-text strong {
+    color: #0c4a6e;
+}
+
+.payment-info-text span {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Back to Cart */
+.back-to-cart {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.back-to-cart:hover {
+    gap: 0.75rem;
+    color: #764ba2;
+}
+
+/* Scrollbar */
+.order-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.order-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.order-items::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkout-steps {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .step-line {
+        width: 2px;
+        height: 30px;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .order-item {
+        flex-wrap: wrap;
+    }
+    
+    .item-subtotal {
+        width: 100%;
+        text-align: right;
+    }
+}
+
+/* Payment Categories - TAMBAHKAN INI */
+.payment-categories {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.category-btn {
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-btn i {
+    font-size: 1rem;
+}
+
+.category-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.category-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: transparent;
+    color: white;
+}
+
+/* Payment Grid */
+.payment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Payment Card */
+.payment-card {
+    position: relative;
+    cursor: pointer;
+}
+
+.payment-radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.payment-card-content {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.3s;
+    background: white;
+    height: 100%;
+}
+
+.payment-radio:checked + .payment-card-content {
+    border-color: #667eea;
+    background: #f5f9ff;
+    box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+}
+
+.payment-card:hover .payment-card-content {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.payment-logo {
+    height: 40px;
+    width: auto;
+    margin-bottom: 0.5rem;
+    object-fit: contain;
+    max-width: 100%;
+}
+
+.payment-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.payment-type {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+</style>
+
+<script>
+function changeQuantity(change) {
+    const input = document.getElementById('quantityInput');
+    let value = parseInt(input.value) + change;
+    if (value < 1) value = 1;
+    input.value = value;
+}
+
+// Form submit handler
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    // Form akan submit secara normal ke server
+    // Tidak perlu preventDefault
+    console.log('Form submitted');
+});
+
+function changeQuantity(change) {
+    const input = document.getElementById('quantityInput');
+    let value = parseInt(input.value) + change;
+    if (value < 1) value = 1;
+    input.value = value;
+}
+
+// Fungsi filter payment methods
+function filterPayments(category) {
+    // Update active class
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active to clicked button
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    
+    // Filter cards
+    const cards = document.querySelectorAll('.payment-card');
+    cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Initialize - show all
+document.addEventListener('DOMContentLoaded', function() {
+    filterPayments('all');
+});
+
+// Form submit handler
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    console.log('Form submitted');
+});
+
+</script>
+{% endblock %}

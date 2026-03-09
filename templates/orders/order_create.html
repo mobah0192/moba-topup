@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .item-preview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .quantity-control .btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    .quantity-control input {
+        width: 80px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Kolom Kiri: Form Order -->
+        <div class="col-md-7 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Form Topup</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Preview Item -->
+                    <div class="item-preview">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <i class="fas fa-diamond fa-3x"></i>
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-1">{{ item.name }}</h5>
+                                <p class="mb-0">{{ item.category.game.name }}</p>
+                            </div>
+                            <div class="col-auto text-end">
+                                <div class="price">Rp {{ item.get_price_display|floatformat:0 }}</div>
+                                {% if item.discount_price %}
+                                <small class="text-white-50"><del>Rp {{ item.price|floatformat:0 }}</del></small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form -->
+                    <form method="POST" id="order-form" class="order-form">
+                        {% csrf_token %}
+                        
+                        <!-- Game ID Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.game_id.id_for_label }}" class="form-label fw-bold">
+                                {{ form.game_id.label }}
+                            </label>
+                            {{ form.game_id }}
+                            <div class="form-text">{{ form.game_id.help_text }}</div>
+                            {% if form.game_id.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.game_id.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Game Server Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.game_server.id_for_label }}" class="form-label">
+                                {{ form.game_server.label }}
+                            </label>
+                            {{ form.game_server }}
+                        </div>
+                        
+                        <!-- Quantity Field -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.quantity.label }}</label>
+                            <div class="quantity-control">
+                                <button type="button" class="btn btn-outline-secondary" id="quantity-minus">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                {{ form.quantity }}
+                                <button type="button" class="btn btn-outline-secondary" id="quantity-plus">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" id="item-price" value="{{ item.get_price_display }}">
+                        </div>
+                        
+                        <!-- Payment Method -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.payment_method.label }}</label>
+                            <div class="payment-methods">
+                                {% for radio in form.payment_method %}
+                                <div class="payment-method {% if radio.data.selected %}selected{% endif %}">
+                                    {{ radio.tag }}
+                                    <div class="method-info">
+                                        <div class="method-name">{{ radio.choice_label }}</div>
+                                        {% if radio.data.value == 'midtrans' %}
+                                        <div class="method-description">
+                                            Bayar dengan transfer bank, e-wallet, atau kartu kredit
+                                        </div>
+                                        {% else %}
+                                        <div class="method-description">
+                                            Gunakan saldo yang tersedia di akun Anda
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="method-icon">
+                                        {% if radio.data.value == 'midtrans' %}
+                                        <i class="fas fa-credit-card"></i>
+                                        {% else %}
+                                        <i class="fas fa-wallet"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Instructions -->
+                        <div id="payment-instructions" class="mb-4"></div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-order">
+                            <i class="fas fa-arrow-right me-2"></i>Lanjutkan ke Pembayaran
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kolom Kanan: Ringkasan Order -->
+        <div class="col-md-5 col-lg-4">
+            <div class="order-summary">
+                <h5 class="mb-3">Ringkasan Order</h5>
+                
+                <div class="item-detail">
+                    <span>Item:</span>
+                    <span class="fw-bold">{{ item.name }}</span>
+                </div>
+                
+                <div class="item-detail">
+                    <span>Game:</span>
+                    <span class="fw-bold">{{ item.category.game.name }}</span>
+                </div>
+                
+                <div class="item-detail">
+                    <span>Kategori:</span>
+                    <span class="fw-bold">{{ item.category.name }}</span>
+                </div>
+                
+                <div class="item-detail">
+                    <span>Jumlah:</span>
+                    <span class="fw-bold">{{ item.amount }} {{ item.category.name }}</span>
+                </div>
+                
+                <div class="item-detail" id="quantity-display">
+                    <span>Quantity:</span>
+                    <span class="fw-bold" id="quantity-value">1x</span>
+                </div>
+                
+                <div class="item-detail">
+                    <span>Harga Satuan:</span>
+                    <span class="fw-bold">Rp {{ item.get_price_display|floatformat:0 }}</span>
+                </div>
+                
+                <div class="item-detail total">
+                    <span>Total:</span>
+                    <span class="total-price" id="total-price">Rp {{ item.get_price_display|floatformat:0 }}</span>
+                </div>
+                
+                <hr>
+                
+                <div class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Pastikan ID Game yang Anda masukkan sudah benar. Kesalahan pengisian ID Game bukan tanggung jawab kami.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Quantity counter
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInput = document.getElementById('{{ form.quantity.id_for_label }}');
+        const minusBtn = document.getElementById('quantity-minus');
+        const plusBtn = document.getElementById('quantity-plus');
+        const quantityValue = document.getElementById('quantity-value');
+        const totalPrice = document.getElementById('total-price');
+        const itemPrice = parseFloat(document.getElementById('item-price').value);
+        
+        function updateDisplay() {
+            let qty = parseInt(quantityInput.value) || 1;
+            if (qty < 1) qty = 1;
+            quantityInput.value = qty;
+            quantityValue.textContent = qty + 'x';
+            
+            const total = qty * itemPrice;
+            totalPrice.textContent = 'Rp ' + total.toLocaleString('id-ID');
+        }
+        
+        minusBtn.addEventListener('click', function() {
+            let qty = parseInt(quantityInput.value) || 1;
+            if (qty > 1) {
+                quantityInput.value = qty - 1;
+                updateDisplay();
+            }
+        });
+        
+        plusBtn.addEventListener('click', function() {
+            let qty = parseInt(quantityInput.value) || 1;
+            quantityInput.value = qty + 1;
+            updateDisplay();
+        });
+        
+        quantityInput.addEventListener('change', updateDisplay);
+        quantityInput.addEventListener('input', updateDisplay);
+        
+        // Initial display
+        updateDisplay();
+    });
+</script>
+{% endblock %}

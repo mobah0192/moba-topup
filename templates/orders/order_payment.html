@@ -1,0 +1,1036 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pembayaran - {{ order.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="payment-page">
+    <div class="container py-5">
+        <!-- Header Premium -->
+        <div class="payment-header text-center mb-5">
+            <div class="premium-badge mb-3">
+                <span class="badge-premium">
+                    <i class="fas fa-crown me-2"></i>PREMIUM TRANSACTION
+                </span>
+            </div>
+            <h1 class="payment-title">
+                <span class="title-gradient">Pembayaran</span>
+                <span class="title-sub">Aman & Terpercaya</span>
+            </h1>
+            <div class="title-decoration">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- KIRI: Status Pembayaran -->
+            <div class="col-lg-7">
+                <!-- Status Card Premium -->
+                <div class="payment-status-card">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <!-- Status Header dengan Animasi -->
+                        <div class="status-header">
+                            <div class="status-icon-wrapper">
+                                {% if order.status == 'pending' %}
+                                    <div class="status-icon pending">
+                                        <i class="fas fa-hourglass-half"></i>
+                                    </div>
+                                    <div class="pulse-ring"></div>
+                                {% elif order.status == 'paid' %}
+                                    <div class="status-icon success">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="confetti">
+                                        <span></span><span></span><span></span><span></span>
+                                    </div>
+                                {% elif order.status == 'failed' %}
+                                    <div class="status-icon failed">
+                                        <i class="fas fa-times-circle"></i>
+                                    </div>
+                                {% elif order.status == 'expired' %}
+                                    <div class="status-icon expired">
+                                        <i class="fas fa-hourglass-end"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="status-text">
+                                <h2 class="status-title {% if order.status == 'paid' %}text-success{% endif %}">
+                                    {% if order.status == 'pending' %}
+                                        Menunggu Pembayaran
+                                    {% elif order.status == 'paid' %}
+                                        Pembayaran Berhasil!
+                                    {% elif order.status == 'failed' %}
+                                        Pembayaran Gagal
+                                    {% elif order.status == 'expired' %}
+                                        Pembayaran Kadaluarsa
+                                    {% endif %}
+                                </h2>
+                                <div class="invoice-badge">
+                                    <i class="fas fa-receipt me-2"></i>
+                                    <span>{{ order.invoice_number }}</span>
+                                    <button class="btn-copy" onclick="copyInvoice()">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timer Premium untuk Pending -->
+                        {% if order.status == 'pending' %}
+                        <div class="premium-timer">
+                            <div class="timer-label">
+                                <i class="fas fa-clock"></i>
+                                <span>Sisa Waktu Pembayaran</span>
+                            </div>
+                            <div class="timer-display" id="countdown">
+                                <div class="timer-item">
+                                    <span class="timer-value" id="hours">30</span>
+                                    <span class="timer-unit">Jam</span>
+                                </div>
+                                <span class="timer-separator">:</span>
+                                <div class="timer-item">
+                                    <span class="timer-value" id="minutes">00</span>
+                                    <span class="timer-unit">Menit</span>
+                                </div>
+                                <span class="timer-separator">:</span>
+                                <div class="timer-item">
+                                    <span class="timer-value" id="seconds">00</span>
+                                    <span class="timer-unit">Detik</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Button Premium -->
+                        {% if order.payment_url %}
+                        <div class="payment-action">
+                            <a href="{{ order.payment_url }}" target="_blank" class="btn-payment-premium" id="payButton">
+                                <span class="btn-text">Bayar Sekarang</span>
+                                <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
+                                <div class="btn-shine"></div>
+                            </a>
+                            <p class="payment-note">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Pembayaran diproses oleh Midtrans
+                            </p>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+
+                        <!-- Success Message Premium -->
+                        {% if order.status == 'paid' %}
+                        <div class="success-premium">
+                            <div class="success-checkmark">
+                                <div class="check-icon">
+                                    <span class="icon-line line-tip"></span>
+                                    <span class="icon-line line-long"></span>
+                                </div>
+                            </div>
+                            <h3 class="success-title">Pembayaran Berhasil!</h3>
+                            <p class="success-message">
+                                Item akan segera dikirim ke ID Game: 
+                                <strong class="game-id">{{ order.game_id }}</strong>
+                            </p>
+                            <div class="success-progress">
+                                <div class="progress-bar"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Payment Instructions Premium -->
+                {% if order.status == 'pending' %}
+                <div class="payment-instructions-premium mt-4">
+                    <div class="instructions-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h4>Panduan Pembayaran</h4>
+                    </div>
+                    <div class="instructions-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h5>Klik tombol "Bayar Sekarang"</h5>
+                                <p>Anda akan diarahkan ke halaman pembayaran Midtrans</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h5>Pilih metode pembayaran</h5>
+                                <p>Transfer Bank, E-Wallet, atau Kartu Kredit</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h5>Selesaikan pembayaran</h5>
+                                <p>Ikuti instruksi yang diberikan</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h5>Tunggu konfirmasi</h5>
+                                <p>Status akan berubah otomatis setelah pembayaran berhasil</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- KANAN: Detail Order Premium -->
+            <div class="col-lg-5">
+                <div class="order-detail-premium">
+                    <div class="detail-header">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Detail Order</h3>
+                    </div>
+                    
+                    <div class="detail-content">
+                        <!-- Info Order -->
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Invoice</span>
+                                <span class="info-value">{{ order.invoice_number }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Tanggal</span>
+                                <span class="info-value">{{ order.created_at|date:"d M Y H:i" }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Status</span>
+                                <span class="info-value">
+                                    <span class="status-badge {{ order.status }}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Item Detail -->
+                        <div class="item-detail-card">
+                            <div class="item-game">{{ order.game_item.category.game.name }}</div>
+                            <div class="item-name">{{ order.game_item.name }}</div>
+                            <div class="item-specs">
+                                <div class="spec">
+                                    <i class="fas fa-cube"></i>
+                                    <span>{{ order.game_item.amount }}</span>
+                                </div>
+                                <div class="spec">
+                                    <i class="fas fa-times"></i>
+                                    <span>{{ order.quantity }}x</span>
+                                </div>
+                                <div class="spec">
+                                    <i class="fas fa-tag"></i>
+                                    <span>Rp {{ order.price|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Game ID Card -->
+                        <div class="game-id-card">
+                            <div class="game-id-label">
+                                <i class="fas fa-user"></i>
+                                <span>Game ID</span>
+                            </div>
+                            <div class="game-id-value">
+                                <code>{{ order.game_id }}</code>
+                                <button class="btn-copy-sm" onclick="copyGameId()">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Total Premium -->
+                        <div class="total-premium">
+                            <div class="total-label">Total Pembayaran</div>
+                            <div class="total-amount">Rp {{ order.total_amount|floatformat:0 }}</div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a href="{% url 'games:list' %}" class="btn-outline-premium">
+                                <i class="fas fa-shopping-bag me-2"></i>
+                                Belanja Lagi
+                            </a>
+                            {% if order.status == 'pending' %}
+                            <a href="{% url 'orders:detail' order.invoice_number %}" class="btn-secondary-premium">
+                                <i class="fas fa-eye me-2"></i>
+                                Lihat Detail
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== PREMIUM PAYMENT STYLES ===== */
+.payment-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated Background */
+.payment-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(102,126,234,0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+}
+
+/* Premium Header */
+.premium-badge {
+    animation: fadeInDown 0.8s;
+}
+
+.badge-premium {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+    display: inline-block;
+}
+
+.payment-title {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.title-gradient {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+}
+
+.title-sub {
+    font-size: 1rem;
+    color: #94a3b8;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.title-decoration {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.title-decoration span {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, #764ba2, #667eea, transparent);
+    animation: expandWidth 1s ease-out;
+}
+
+/* Payment Status Card */
+.payment-status-card {
+    position: relative;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+.card-content {
+    position: relative;
+    padding: 2rem;
+    z-index: 1;
+}
+
+/* Status Icon */
+.status-icon-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+}
+
+.status-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    z-index: 2;
+}
+
+.status-icon.pending {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    box-shadow: 0 0 30px rgba(245,158,11,0.3);
+}
+
+.status-icon.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 0 30px rgba(16,185,129,0.3);
+}
+
+.status-icon.failed {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 0 30px rgba(239,68,68,0.3);
+}
+
+.status-icon.expired {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: white;
+    box-shadow: 0 0 30px rgba(107,114,128,0.3);
+}
+
+.pulse-ring {
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    border-radius: 50%;
+    background: rgba(245,158,11,0.2);
+    animation: pulse 2s ease-out infinite;
+}
+
+/* Confetti Animation */
+.confetti {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.confetti span {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    animation: confetti 2s ease-out forwards;
+}
+
+.confetti span:nth-child(1) { left: 20%; animation-delay: 0s; }
+.confetti span:nth-child(2) { left: 40%; animation-delay: 0.1s; }
+.confetti span:nth-child(3) { left: 60%; animation-delay: 0.2s; }
+.confetti span:nth-child(4) { left: 80%; animation-delay: 0.3s; }
+
+/* Status Text */
+.status-text {
+    text-align: center;
+}
+
+.status-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.invoice-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-copy {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    margin-left: 1rem;
+    transition: all 0.3s;
+}
+
+.btn-copy:hover {
+    color: #667eea;
+    transform: scale(1.1);
+}
+
+/* Premium Timer */
+.premium-timer {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.timer-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.timer-label i {
+    color: #f59e0b;
+}
+
+.timer-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.timer-item {
+    background: linear-gradient(135deg, #2d3748, #1e293b);
+    border-radius: 15px;
+    padding: 1rem;
+    min-width: 80px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.timer-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #f59e0b;
+    line-height: 1;
+    display: block;
+}
+
+.timer-unit {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.timer-separator {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #667eea;
+}
+
+/* Premium Payment Button */
+.btn-payment-premium {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    overflow: hidden;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-payment-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(16,185,129,0.3);
+}
+
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shine 3s infinite;
+}
+
+.btn-icon {
+    transition: transform 0.3s;
+}
+
+.btn-payment-premium:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+.payment-note {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+/* Success Premium */
+.success-premium {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+}
+
+.check-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-sizing: content-box;
+}
+
+.check-icon::before {
+    top: 50%;
+    left: 50%;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 #10b981;
+}
+
+.icon-line {
+    height: 5px;
+    background-color: white;
+    display: block;
+    border-radius: 10px;
+    position: absolute;
+}
+
+.line-tip {
+    top: 46px;
+    left: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+    animation: iconTip 0.75s;
+}
+
+.line-long {
+    top: 38px;
+    right: 8px;
+    width: 47px;
+    transform: rotate(-45deg);
+    animation: iconLong 0.75s;
+}
+
+.success-title {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.success-message {
+    color: #94a3b8;
+}
+
+.game-id {
+    color: #10b981;
+    background: rgba(16,185,129,0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+}
+
+.success-progress {
+    margin-top: 2rem;
+}
+
+.progress-bar {
+    height: 2px;
+    background: linear-gradient(90deg, #10b981, #059669, #10b981);
+    background-size: 200% 100%;
+    animation: progress 2s linear infinite;
+}
+
+/* Order Detail Premium */
+.order-detail-premium {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.detail-header {
+    background: linear-gradient(135deg, #667eea20, #764ba220);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.detail-header i {
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.detail-header h3 {
+    margin: 0;
+    color: white;
+}
+
+.detail-content {
+    padding: 1.5rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 15px;
+    padding: 1rem;
+}
+
+.info-label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    display: block;
+    color: white;
+    font-weight: 600;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+}
+
+.status-badge.pending {
+    background: #fbbf2420;
+    color: #fbbf24;
+    border: 1px solid #fbbf24;
+}
+
+.status-badge.paid {
+    background: #10b98120;
+    color: #10b981;
+    border: 1px solid #10b981;
+}
+
+/* Item Detail Card */
+.item-detail-card {
+    background: linear-gradient(135deg, #667eea10, #764ba210);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(102,126,234,0.2);
+}
+
+.item-game {
+    color: #667eea;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.item-name {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.item-specs {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.spec {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+}
+
+.spec i {
+    color: #667eea;
+}
+
+/* Game ID Card */
+.game-id-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.game-id-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.game-id-value {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.game-id-value code {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem;
+    border-radius: 10px;
+    color: #10b981;
+}
+
+.btn-copy-sm {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-copy-sm:hover {
+    background: #667eea;
+    transform: scale(1.05);
+}
+
+/* Total Premium */
+.total-premium {
+    text-align: right;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.total-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.total-amount {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #10b981, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-outline-premium, .btn-secondary-premium {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 15px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-outline-premium {
+    background: transparent;
+    border: 2px solid #667eea;
+    color: white;
+}
+
+.btn-outline-premium:hover {
+    background: #667eea;
+    transform: translateY(-2px);
+}
+
+.btn-secondary-premium {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+}
+
+.btn-secondary-premium:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+
+@keyframes confetti {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes iconTip {
+    0% { width: 0; left: 1px; top: 19px; }
+    54% { width: 0; left: 1px; top: 19px; }
+    70% { width: 50px; left: -8px; top: 37px; }
+    84% { width: 17px; left: 21px; top: 48px; }
+    100% { width: 25px; left: 14px; top: 45px; }
+}
+
+@keyframes iconLong {
+    0% { width: 0; right: 46px; top: 54px; }
+    65% { width: 0; right: 46px; top: 54px; }
+    84% { width: 55px; right: 0px; top: 35px; }
+    100% { width: 47px; right: 8px; top: 38px; }
+}
+
+@keyframes progress {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes expandWidth {
+    0% { width: 0; opacity: 0; }
+    100% { width: 50px; opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<script>
+// Copy functions
+function copyInvoice() {
+    const invoice = "{{ order.invoice_number }}";
+    navigator.clipboard.writeText(invoice);
+    showNotification('Invoice berhasil disalin!', 'success');
+}
+
+function copyGameId() {
+    const gameId = "{{ order.game_id }}";
+    navigator.clipboard.writeText(gameId);
+    showNotification('Game ID berhasil disalin!', 'success');
+}
+
+// Countdown Timer
+function updateCountdown() {
+    const created = new Date("{{ order.created_at|date:'c' }}");
+    const expiry = new Date(created.getTime() + (30 * 60 * 1000));
+    const now = new Date();
+    const diff = expiry - now;
+    
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    
+    if (!hoursEl || !minutesEl || !secondsEl) return;
+    
+    if (diff <= 0) {
+        hoursEl.textContent = '00';
+        minutesEl.textContent = '00';
+        secondsEl.textContent = '00';
+        clearInterval(timerInterval);
+        setTimeout(() => location.reload(), 2000);
+    } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+    }
+}
+
+// Auto refresh status
+function checkStatus() {
+    {% if order.status == 'pending' %}
+    fetch("{% url 'orders:check_payment_status' order.invoice_number %}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.status !== 'pending') {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    {% endif %}
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    {% if order.status == 'pending' %}
+    // Start countdown
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // Check status every 5 seconds
+    setInterval(checkStatus, 5000);
+    
+    // Add premium button effect
+    const payButton = document.getElementById('payButton');
+    if (payButton) {
+        payButton.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            this.style.setProperty('--x', x + 'px');
+            this.style.setProperty('--y', y + 'px');
+        });
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}

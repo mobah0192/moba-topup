@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Guest Checkout{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4><i class="fas fa-user-clock me-2"></i>Checkout Tanpa Login</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Anda akan berbelanja tanpa login. Invoice akan dikirim ke email Anda.
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email Anda *</label>
+                            <input type="email" name="email" class="form-control form-control-lg" required>
+                            <div class="form-text">Invoice akan dikirim ke email ini</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">ID Game</label>
+                            <input type="text" name="game_id" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Server (opsional)</label>
+                            <input type="text" name="game_server" class="form-control">
+                        </div>
+                        
+                        <hr>
+                        
+                        <h5>Ringkasan Order</h5>
+                        <table class="table">
+                            {% for item in cart %}
+                            <tr>
+                                <td>{{ item.item.name }}</td>
+                                <td>{{ item.quantity }}x</td>
+                                <td class="text-end">Rp {{ item.total_price|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="fw-bold">
+                                <td colspan="2">Total</td>
+                                <td class="text-end text-primary">Rp {{ cart.get_total_price|floatformat:0 }}</td>
+                            </tr>
+                        </table>
+                        
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-arrow-right me-2"></i>Lanjut ke Pembayaran
+                        </button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="text-muted">Sudah punya akun?</p>
+                        <a href="{% url 'users:login' %}?next={% url 'orders:checkout' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login untuk dapatkan promo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

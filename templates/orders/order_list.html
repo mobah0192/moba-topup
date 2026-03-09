@@ -1,0 +1,757 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Riwayat Topup - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<div class="history-page">
+    <div class="container py-5">
+        <!-- Premium Header -->
+        <div class="history-header text-center mb-5">
+            <div class="premium-badge mb-3">
+                <span class="badge-premium">
+                    <i class="fas fa-crown me-2"></i>RIWAYAT TRANSAKSI
+                </span>
+            </div>
+            <h1 class="history-title">
+                <span class="title-gradient">Riwayat Topup</span>
+                <span class="title-sub">Semua transaksi Anda</span>
+            </h1>
+            <div class="title-decoration">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- Stats Cards Premium -->
+        <div class="stats-grid mb-5">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Order</span>
+                    <span class="stat-value">{{ orders.count }}</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Pending</span>
+                    <span class="stat-value">{{ pending_count }}</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Sukses</span>
+                    <span class="stat-value">{{ success_count }}</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Belanja</span>
+                    <span class="stat-value">Rp {{ total_spent|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Premium -->
+        <div class="filter-premium mb-4">
+            <div class="filter-header">
+                <i class="fas fa-filter"></i>
+                <span>Filter Status</span>
+            </div>
+            <div class="filter-buttons">
+                <a href="{% url 'orders:list' %}" class="filter-btn {% if not current_status %}active{% endif %}">
+                    Semua
+                </a>
+                <a href="?status=pending" class="filter-btn {% if current_status == 'pending' %}active{% endif %}">
+                    <span class="dot pending"></span>
+                    Pending
+                </a>
+                <a href="?status=paid" class="filter-btn {% if current_status == 'paid' %}active{% endif %}">
+                    <span class="dot success"></span>
+                    Paid
+                </a>
+                <a href="?status=processing" class="filter-btn {% if current_status == 'processing' %}active{% endif %}">
+                    <span class="dot processing"></span>
+                    Processing
+                </a>
+                <a href="?status=completed" class="filter-btn {% if current_status == 'completed' %}active{% endif %}">
+                    <span class="dot completed"></span>
+                    Completed
+                </a>
+                <a href="?status=failed" class="filter-btn {% if current_status == 'failed' %}active{% endif %}">
+                    <span class="dot failed"></span>
+                    Failed
+                </a>
+            </div>
+        </div>
+
+        <!-- Orders List Premium -->
+        <div class="orders-premium">
+            {% if orders %}
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-card-glow"></div>
+                    <div class="order-card-content">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <span class="order-invoice">#{{ order.invoice_number }}</span>
+                                <span class="order-date">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    {{ order.created_at|date:"d M Y H:i" }}
+                                </span>
+                            </div>
+                            <span class="status-badge {{ order.status }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <div class="order-body">
+                            <div class="order-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Game</span>
+                                    <span class="detail-value">{{ order.game_item.category.game.name }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Item</span>
+                                    <span class="detail-value">{{ order.game_item.name }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Game ID</span>
+                                    <span class="detail-value game-id">{{ order.game_id }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Total</span>
+                                    <span class="detail-value total">Rp {{ order.total_amount|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="order-footer">
+                            <a href="{% url 'orders:detail' order.invoice_number %}" class="btn-view-detail">
+                                <span>Lihat Detail</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            {% if order.status == 'pending' %}
+                            <a href="{% url 'orders:payment' order.invoice_number %}" class="btn-pay-now">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Bayar Sekarang</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination Premium -->
+                {% if orders.has_other_pages %}
+                <div class="pagination-premium">
+                    <div class="pagination-info">
+                        Halaman {{ orders.number }} dari {{ orders.paginator.num_pages }}
+                    </div>
+                    <div class="pagination-buttons">
+                        {% if orders.has_previous %}
+                        <a href="?page={{ orders.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="page-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for i in orders.paginator.page_range %}
+                            {% if orders.number == i %}
+                            <span class="page-btn active">{{ i }}</span>
+                            {% elif i > orders.number|add:'-3' and i < orders.number|add:'3' %}
+                            <a href="?page={{ i }}{% if current_status %}&status={{ current_status }}{% endif %}" class="page-btn">{{ i }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if orders.has_next %}
+                        <a href="?page={{ orders.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="page-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+            {% else %}
+            <!-- Empty State Premium -->
+            <div class="empty-state-premium">
+                <div class="empty-icon">
+                    <i class="fas fa-receipt"></i>
+                    <div class="empty-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Belum Ada Transaksi</h3>
+                <p>Yuk, top up game favoritmu sekarang!</p>
+                <a href="{% url 'games:list' %}" class="btn-explore-premium">
+                    <i class="fas fa-gamepad me-2"></i>
+                    Mulai Belanja
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== PREMIUM HISTORY STYLES ===== */
+.history-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.history-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 30%, rgba(102,126,234,0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+}
+
+/* Premium Header */
+.premium-badge {
+    animation: fadeInDown 0.8s;
+}
+
+.badge-premium {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+    display: inline-block;
+}
+
+.history-title {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.title-gradient {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+}
+
+.title-sub {
+    font-size: 1rem;
+    color: #94a3b8;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.title-decoration {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.title-decoration span {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, #764ba2, #667eea, transparent);
+    animation: expandWidth 1s ease-out;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: #667eea;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-icon.pending {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.stat-icon.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-icon.total {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    display: block;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Filter Premium */
+.filter-premium {
+    background: rgba(255,255,255,0.03);
+    border-radius: 20px;
+    padding: 1rem;
+}
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.filter-header i {
+    color: #667eea;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.05);
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot.pending {
+    background: #fbbf24;
+    box-shadow: 0 0 10px #fbbf24;
+}
+
+.dot.success {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.dot.processing {
+    background: #667eea;
+    box-shadow: 0 0 10px #667eea;
+}
+
+.dot.completed {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.dot.failed {
+    background: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+}
+
+/* Order Cards */
+.orders-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.order-card {
+    position: relative;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    border-color: #667eea;
+}
+
+.order-card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.order-card:hover .order-card-glow {
+    opacity: 1;
+}
+
+.order-card-content {
+    position: relative;
+    padding: 1.5rem;
+    z-index: 1;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.order-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.order-invoice {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.order-date {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.order-date i {
+    margin-right: 0.25rem;
+    color: #667eea;
+}
+
+.status-badge {
+    padding: 0.25rem 1rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.pending {
+    background: #fbbf2420;
+    color: #fbbf24;
+    border: 1px solid #fbbf24;
+}
+
+.status-badge.paid {
+    background: #10b98120;
+    color: #10b981;
+    border: 1px solid #10b981;
+}
+
+.status-badge.processing {
+    background: #667eea20;
+    color: #667eea;
+    border: 1px solid #667eea;
+}
+
+.status-badge.completed {
+    background: #10b98120;
+    color: #10b981;
+    border: 1px solid #10b981;
+}
+
+.status-badge.failed {
+    background: #ef444420;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin: 1rem 0;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detail-label {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.detail-value {
+    color: white;
+    font-weight: 600;
+}
+
+.detail-value.game-id {
+    color: #10b981;
+    font-family: monospace;
+}
+
+.detail-value.total {
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.order-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-view-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.btn-view-detail:hover {
+    background: #667eea;
+    gap: 1rem;
+}
+
+.btn-pay-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.btn-pay-now:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(16,185,129,0.3);
+}
+
+/* Pagination Premium */
+.pagination-premium {
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.pagination-info {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.pagination-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.page-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: scale(1.1);
+}
+
+.page-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* Empty State Premium */
+.empty-state-premium {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 30px;
+}
+
+.empty-icon {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 2rem;
+}
+
+.empty-icon i {
+    font-size: 4rem;
+    color: #94a3b8;
+    animation: float 3s ease-in-out infinite;
+}
+
+.empty-dots {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.empty-dots span {
+    width: 8px;
+    height: 8px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.empty-dots span:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.empty-dots span:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.empty-state-premium h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state-premium p {
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+
+.btn-explore-premium {
+    display: inline-flex;
+    align-items: center;
+    padding: 1rem 3rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-explore-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .order-details {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .order-footer {
+        flex-direction: column;
+    }
+    
+    .filter-buttons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .title-gradient {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+</style>
+{% endblock %}

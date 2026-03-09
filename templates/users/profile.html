@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil Saya - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="container py-5">
+        <!-- Premium Header -->
+        <div class="profile-header text-center mb-5">
+            <div class="premium-badge mb-3">
+                <span class="badge-premium">
+                    <i class="fas fa-crown me-2"></i>PROFILE PREMIUM
+                </span>
+            </div>
+            <h1 class="profile-title">
+                <span class="title-gradient">{{ user.username }}</span>
+                <span class="title-sub">Member sejak {{ user.date_joined|date:"F Y" }}</span>
+            </h1>
+            <div class="title-decoration">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Profile Card -->
+            <div class="col-lg-4">
+                <div class="profile-card-premium">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="avatar-glow"></div>
+                        </div>
+                        <h3 class="profile-name">{{ user.username }}</h3>
+                        <p class="profile-email">{{ user.email }}</p>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">{{ total_orders }}</span>
+                                <span class="stat-label">Transaksi</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">Rp {{ total_spent|floatformat:0 }}</span>
+                                <span class="stat-label">Total Belanja</span>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'users:profile_edit' %}" class="btn-edit-profile">
+                            <i class="fas fa-edit me-2"></i>
+                            Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Cards -->
+            <div class="col-lg-8">
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Game Favorit</h4>
+                            <p>Mobile Legends, Free Fire, PUBG</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Transaksi Sukses</h4>
+                            <p>{{ success_orders }} transaksi</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Pending</h4>
+                            <p>{{ pending_orders }} transaksi</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon primary">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Saldo</h4>
+                            <p>Rp {{ user.balance|default:0|floatformat:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="recent-orders-premium">
+                    <div class="section-header">
+                        <i class="fas fa-history"></i>
+                        <h4>Transaksi Terbaru</h4>
+                        <a href="{% url 'orders:list' %}" class="view-all">Lihat Semua</a>
+                    </div>
+                    
+                    {% for order in recent_orders %}
+                    <div class="recent-order-item">
+                        <div class="order-info">
+                            <span class="order-invoice">#{{ order.invoice_number }}</span>
+                            <span class="order-game">{{ order.game_item.category.game.name }}</span>
+                            <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge {{ order.status }}">{{ order.get_status_display }}</span>
+                            <span class="order-amount">Rp {{ order.total_amount|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Belum ada transaksi</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== PREMIUM PROFILE STYLES ===== */
+.profile-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 40%, rgba(102,126,234,0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+}
+
+/* Premium Header */
+.premium-badge {
+    animation: fadeInDown 0.8s;
+}
+
+.badge-premium {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+    display: inline-block;
+}
+
+.profile-title {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.title-gradient {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+}
+
+.title-sub {
+    font-size: 1rem;
+    color: #94a3b8;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.title-decoration {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.title-decoration span {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, #764ba2, #667eea, transparent);
+    animation: expandWidth 1s ease-out;
+}
+
+/* Profile Card */
+.profile-card-premium {
+    position: relative;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.profile-card-premium:hover .card-glow {
+    opacity: 1;
+}
+
+.card-content {
+    position: relative;
+    padding: 2rem;
+    text-align: center;
+    z-index: 1;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+}
+
+.profile-avatar i {
+    width: 100%;
+    height: 100%;
+    font-size: 6rem;
+    color: #667eea;
+}
+
+.avatar-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(102,126,234,0.3) 0%, transparent 70%);
+    animation: pulse 2s infinite;
+}
+
+.profile-name {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-email {
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.btn-edit-profile {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.info-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.info-icon.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.info-icon.warning {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.info-icon.primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.info-content h4 {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.info-content p {
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Recent Orders */
+.recent-orders-premium {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-header i {
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.section-header h4 {
+    color: white;
+    margin: 0;
+    flex: 1;
+}
+
+.view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.recent-order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.recent-order-item:last-child {
+    border-bottom: none;
+}
+
+.order-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.order-invoice {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.order-game {
+    color: white;
+}
+
+.order-date {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.order-status {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.status-badge {
+    padding: 0.25rem 1rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+}
+
+.status-badge.pending {
+    background: #fbbf2420;
+    color: #fbbf24;
+}
+
+.status-badge.paid {
+    background: #10b98120;
+    color: #10b981;
+}
+
+.status-badge.processing {
+    background: #667eea20;
+    color: #667eea;
+}
+
+.status-badge.completed {
+    background: #10b98120;
+    color: #10b981;
+}
+
+.order-amount {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .title-gradient {
+        font-size: 2rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recent-order-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .order-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .order-status {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+</style>
+{% endblock %}

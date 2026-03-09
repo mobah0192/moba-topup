@@ -1,0 +1,620 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detail Order - {{ order.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <div class="container py-5">
+        <!-- Premium Header -->
+        <div class="detail-header text-center mb-5">
+            <div class="premium-badge mb-3">
+                <span class="badge-premium">
+                    <i class="fas fa-crown me-2"></i>DETAIL TRANSAKSI
+                </span>
+            </div>
+            <h1 class="detail-title">
+                <span class="title-gradient">Order Details</span>
+                <span class="title-sub">{{ order.invoice_number }}</span>
+            </h1>
+            <div class="title-decoration">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Status Card -->
+            <div class="col-lg-4">
+                <div class="status-card-premium">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="status-icon-large {{ order.status }}">
+                            <i class="fas {% if order.status == 'pending' %}fa-clock{% elif order.status == 'paid' %}fa-check-circle{% elif order.status == 'processing' %}fa-spinner{% elif order.status == 'completed' %}fa-check-double{% elif order.status == 'failed' %}fa-times-circle{% else %}fa-hourglass-end{% endif %}"></i>
+                        </div>
+                        <h3 class="status-title-{{ order.status }}">{{ order.get_status_display }}</h3>
+                        
+                        {% if order.status == 'pending' %}
+                        <div class="timer-mini">
+                            <i class="fas fa-clock"></i>
+                            <span>Sisa waktu: <span id="countdown-mini">30:00</span></span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="status-timeline">
+                            <div class="timeline-item completed">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Order Dibuat</span>
+                                <small>{{ order.created_at|date:"H:i" }}</small>
+                            </div>
+                            <div class="timeline-item {% if order.paid_at %}completed{% endif %}">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Pembayaran</span>
+                                <small>{% if order.paid_at %}{{ order.paid_at|date:"H:i" }}{% endif %}</small>
+                            </div>
+                            <div class="timeline-item {% if order.status == 'completed' %}completed{% endif %}">
+                                <i class="fas fa-check-double"></i>
+                                <span>Selesai</span>
+                                <small>{% if order.completed_at %}{{ order.completed_at|date:"H:i" }}{% endif %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Card -->
+            <div class="col-lg-8">
+                <div class="detail-card-premium">
+                    <div class="card-header-premium">
+                        <i class="fas fa-info-circle"></i>
+                        <h4>Informasi Order</h4>
+                    </div>
+                    
+                    <div class="card-body-premium">
+                        <!-- Game Info -->
+                        <div class="game-info-premium">
+                            <div class="game-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="game-details">
+                                <span class="game-name">{{ order.game_item.category.game.name }}</span>
+                                <span class="item-name">{{ order.game_item.name }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Detail Grid -->
+                        <div class="detail-grid">
+                            <div class="detail-box">
+                                <span class="detail-label">Invoice</span>
+                                <span class="detail-value">{{ order.invoice_number }}</span>
+                            </div>
+                            <div class="detail-box">
+                                <span class="detail-label">Game ID</span>
+                                <span class="detail-value game-id">{{ order.game_id }}</span>
+                            </div>
+                            <div class="detail-box">
+                                <span class="detail-label">Jumlah</span>
+                                <span class="detail-value">{{ order.quantity }}x</span>
+                            </div>
+                            <div class="detail-box">
+                                <span class="detail-label">Harga Satuan</span>
+                                <span class="detail-value">Rp {{ order.price|floatformat:0 }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="total-premium-box">
+                            <span>Total Pembayaran</span>
+                            <span class="total-amount">Rp {{ order.total_amount|floatformat:0 }}</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons-premium">
+                            {% if order.status == 'pending' %}
+                            <a href="{% url 'orders:payment' order.invoice_number %}" class="btn-primary-premium">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Bayar Sekarang</span>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'orders:list' %}" class="btn-secondary-premium">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Kembali ke Riwayat</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== PREMIUM DETAIL STYLES ===== */
+.detail-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.detail-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 80% 50%, rgba(102,126,234,0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+}
+
+/* Premium Header */
+.premium-badge {
+    animation: fadeInDown 0.8s;
+}
+
+.badge-premium {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+    display: inline-block;
+}
+
+.detail-title {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.title-gradient {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+}
+
+.title-sub {
+    font-size: 1rem;
+    color: #94a3b8;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.title-decoration {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.title-decoration span {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, #764ba2, #667eea, transparent);
+    animation: expandWidth 1s ease-out;
+}
+
+/* Status Card */
+.status-card-premium {
+    position: relative;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    overflow: hidden;
+    height: 100%;
+}
+
+.card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.status-card-premium:hover .card-glow {
+    opacity: 1;
+}
+
+.card-content {
+    position: relative;
+    padding: 2rem;
+    z-index: 1;
+}
+
+.status-icon-large {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+}
+
+.status-icon-large.pending {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    box-shadow: 0 0 30px rgba(245,158,11,0.3);
+    animation: pulse 2s infinite;
+}
+
+.status-icon-large.paid {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 0 30px rgba(16,185,129,0.3);
+    animation: bounce 1s;
+}
+
+.status-icon-large.processing {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    box-shadow: 0 0 30px rgba(102,126,234,0.3);
+    animation: rotate 2s linear infinite;
+}
+
+.status-icon-large.completed {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 0 30px rgba(16,185,129,0.3);
+}
+
+.status-icon-large.failed {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 0 30px rgba(239,68,68,0.3);
+}
+
+.status-icon-large.expired {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    box-shadow: 0 0 30px rgba(107,114,128,0.3);
+}
+
+.status-title-pending {
+    color: #fbbf24;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.status-title-paid {
+    color: #10b981;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.status-title-processing {
+    color: #667eea;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.status-title-completed {
+    color: #10b981;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.timer-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(0,0,0,0.3);
+    padding: 0.5rem;
+    border-radius: 50px;
+    margin: 1rem 0;
+}
+
+.timer-mini i {
+    color: #fbbf24;
+}
+
+.timer-mini span {
+    color: white;
+}
+
+/* Status Timeline */
+.status-timeline {
+    margin-top: 2rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-left: 2px solid rgba(255,255,255,0.1);
+    padding-left: 1rem;
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+}
+
+.timeline-item.completed {
+    border-left-color: #10b981;
+}
+
+.timeline-item.completed::before {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.timeline-item i {
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.timeline-item.completed i {
+    color: #10b981;
+}
+
+.timeline-item span {
+    flex: 1;
+    color: white;
+}
+
+.timeline-item small {
+    color: #94a3b8;
+}
+
+/* Detail Card */
+.detail-card-premium {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.card-header-premium {
+    background: linear-gradient(135deg, #667eea20, #764ba220);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.card-header-premium i {
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.card-header-premium h4 {
+    margin: 0;
+    color: white;
+}
+
+.card-body-premium {
+    padding: 2rem;
+}
+
+/* Game Info */
+.game-info-premium {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+    margin-bottom: 2rem;
+}
+
+.game-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.game-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-name {
+    color: #667eea;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.item-name {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Detail Grid */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.detail-box {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 1rem;
+}
+
+.detail-label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.detail-value {
+    display: block;
+    color: white;
+    font-weight: 600;
+}
+
+.detail-value.game-id {
+    color: #10b981;
+    font-family: monospace;
+}
+
+/* Total Premium */
+.total-premium-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea10, #764ba210);
+    border: 1px solid #667eea20;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.total-premium-box span:first-child {
+    color: #94a3b8;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+/* Action Buttons */
+.action-buttons-premium {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-primary-premium {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(16,185,129,0.3);
+}
+
+.btn-secondary-premium {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-secondary-premium:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .title-gradient {
+        font-size: 2rem;
+    }
+    
+    .action-buttons-premium {
+        flex-direction: column;
+    }
+    
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animations */
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+</style>
+
+<script>
+let countdownInterval;
+let hasReloaded = false;
+
+function updateCountdown() {
+    const created = new Date("{{ order.created_at|date:'c' }}");
+    const expiry = new Date(created.getTime() + (30 * 60 * 1000));
+    const now = new Date();
+    const diff = expiry - now;
+    
+    const countdownEl = document.getElementById('countdown-mini');
+    if (!countdownEl) return;
+    
+    if (diff <= 0) {
+        countdownEl.textContent = '00:00';
+        // Hentikan interval
+        clearInterval(countdownInterval);
+        
+        // Reload hanya sekali
+        //if (!hasReloaded) {
+            hasReloaded = true;
+            setTimeout(() => location.reload(), 2000);
+        }
+    } else {
+        const minutes = Math.floor(diff / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        countdownEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    {% if order.status == 'pending' %}
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 1000);
+    {% endif %}
+});
+</script>
+{% endblock %}

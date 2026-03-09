@@ -1,0 +1,431 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        
+        <a class="navbar-brand" href="{% url 'games:list' %}">
+            <div class="brand-wrapper">
+                <span class="brand-text">MOBA</span>
+                <span class="brand-text-highlight">TOPUP</span>
+                <div class="brand-glow"></div>
+            </div>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'games:list' %}" data-title="Home">
+                        <div class="nav-icon-wrapper">
+                            <i class="fas fa-home"></i>
+                            <span class="nav-icon-bg"></span>
+                        </div>
+                        <span class="d-lg-none ms-2">Home</span>
+                    </a>
+                </li>
+                
+                {% if user.is_authenticated %}
+                 
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'orders:cart_detail' %}" data-title="Keranjang">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span id="cart-count" class="cart-badge d-none">0</span>
+                                <span class="nav-icon-bg"></span>
+                            </div>
+                            <span class="d-lg-none ms-2">Keranjang</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" data-title="Akun">
+                            <div class="user-avatar">
+                                <i class="fas fa-user-circle"></i>
+                                {% if user.balance > 0 %}
+                                <span class="balance-badge">Rp {{ user.balance|floatformat:0 }}</span>
+                                {% endif %}
+                            </div>
+                            <span class="d-lg-none ms-2">{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="dropdown-header">
+                                <div class="dropdown-user-info">
+                                    <strong>{{ user.username }}</strong>
+                                    <small>{{ user.email }}</small>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'users:profile' %}">
+                                <i class="fas fa-id-card"></i>
+                                <span>Profil Saya</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'orders:list' %}">
+                                <i class="fas fa-history"></i>
+                                <span>Riwayat Topup</span>
+                                <span class="dropdown-badge">3</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'orders:cart_detail' %}">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Keranjang</span>
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'orders:cart_detail' %}" data-title="Keranjang">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span id="cart-count" class="cart-badge d-none">0</span>
+                                <span class="nav-icon-bg"></span>
+                            </div>
+                            <span class="d-lg-none ms-2">Keranjang</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="nav-item">
+                        <a class="nav-link login-link" href="{% url 'users:login' %}" data-title="Login">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span class="nav-icon-bg"></span>
+                            </div>
+                            <span class="d-lg-none ms-2">Login</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Register dengan efek button -->
+                    <li class="nav-item">
+                        <a class="nav-link register-btn" href="{% url 'users:register' %}" data-title="Daftar">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Daftar</span>
+                            <div class="register-glow"></div>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Floating Action Button untuk Mobile (Opsional) -->
+{% if not user.is_authenticated %}
+<div class="mobile-fab d-lg-none">
+    <a href="{% url 'users:register' %}" class="fab-btn">
+        <i class="fas fa-user-plus"></i>
+    </a>
+</div>
+{% endif %}
+
+<!-- Add this CSS temporarily until we update style.css -->
+<style>
+/* Temporary navbar improvements - will be moved to style.css */
+.navbar {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 1rem 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.brand-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.brand-text {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 5s ease infinite;
+    display: inline-block;
+}
+
+.brand-text-highlight {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #ffd93d, #ff6b6b, #6c5ce7, #a8e6cf);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 3s ease infinite;
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.brand-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.navbar-brand:hover .brand-glow {
+    opacity: 1;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.nav-icon-wrapper {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.nav-icon-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    transform: scale(0);
+    transition: transform 0.3s;
+}
+
+.nav-link:hover .nav-icon-bg {
+    transform: scale(1);
+}
+
+.nav-link i {
+    font-size: 1.3rem;
+    color: rgba(255,255,255,0.9);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+}
+
+.nav-link:hover i {
+    color: white;
+    transform: scale(1.1);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5253);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #1a1a2e;
+    animation: pulse 2s infinite;
+}
+
+.user-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar i {
+    font-size: 1.8rem;
+}
+
+.balance-badge {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.dropdown-menu {
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 10px 0;
+    margin-top: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    min-width: 250px;
+}
+
+.dropdown-header {
+    padding: 15px 20px;
+}
+
+.dropdown-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-user-info strong {
+    color: white;
+    font-size: 1rem;
+}
+
+.dropdown-user-info small {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.8rem;
+}
+
+.dropdown-item {
+    color: rgba(255,255,255,0.8);
+    padding: 12px 20px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dropdown-item i {
+    width: 20px;
+    color: #4ecdc4;
+    font-size: 1rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(78, 205, 196, 0.1);
+    color: white;
+    transform: translateX(5px);
+}
+
+.dropdown-badge {
+    margin-left: auto;
+    background: #ff6b6b;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+}
+
+.register-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ee5253);
+    border-radius: 30px !important;
+    padding: 10px 25px !important;
+    margin-left: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-btn i, 
+.register-btn span {
+    color: white !important;
+    position: relative;
+    z-index: 1;
+}
+
+.register-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.register-btn:hover .register-glow {
+    opacity: 1;
+}
+
+.login-link {
+    position: relative;
+}
+
+.login-link::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: #4ecdc4;
+    transition: width 0.3s;
+}
+
+.login-link:hover::after {
+    width: 30px;
+}
+
+.mobile-fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+}
+
+.fab-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b6b, #ee5253);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .nav-link {
+        padding: 12px 15px !important;
+    }
+    
+    .register-btn {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+
+
+</style>

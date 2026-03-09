@@ -1,0 +1,642 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MOBA TOPUP - Top Up Game Termurah{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-logo">MOBA<span>TOPUP</span></div>
+            <div class="preloader-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    {% include 'includes/navbar.html' %}
+
+    <!-- Messages/Notifikasi Modern -->
+    {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+                <div class="message-item message-{{ message.tags }}" role="alert">
+                    <div class="message-icon">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="message-content">{{ message }}</div>
+                    <button type="button" class="message-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer Modern -->
+    <footer class="footer-modern">
+        <div class="container">
+            <div class="footer-top">
+                <div class="row">
+                    <div class="col-lg-4 mb-4 mb-lg-0">
+                        <div class="footer-logo">
+                            <span class="footer-logo-text">MOBA</span>
+                            <span class="footer-logo-highlight">TOPUP</span>
+                        </div>
+                        <p class="footer-description">
+                        Top up game termurah dan terpercaya di Indonesia. 
+                        Proses cepat, aman, dan 24/7 customer support.
+                        </p>
+                        <div class="footer-social">
+                            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                        <h5 class="footer-title">Perusahaan</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Tentang Kami</a></li>
+                            <li><a href="#">Karir</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Mitra</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                        <h5 class="footer-title">Bantuan</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Kebijakan Privasi</a></li>
+                            <li><a href="#">Syarat & Ketentuan</a></li>
+                            <li><a href="#">Hubungi Kami</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4">
+                        <h5 class="footer-title">Download Aplikasi</h5>
+                        <p class="footer-app-text">Dapatkan pengalaman top up lebih mudah dengan aplikasi mobile</p>
+                        <div class="footer-apps">
+                            <a href="#" class="app-button">
+                                <i class="fab fa-google-play"></i>
+                                <div class="app-button-text">
+                                    <span>Get it on</span>
+                                    <strong>Google Play</strong>
+                                </div>
+                            </a>
+                            <a href="#" class="app-button">
+                                <i class="fab fa-apple"></i>
+                                <div class="app-button-text">
+                                    <span>Download on</span>
+                                    <strong>App Store</strong>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="copyright">
+                            &copy; {% now "Y" %} MOBA TOPUP. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="payment-methods">
+                            <span>Kami Menerima:</span>
+                            <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Visa">
+                            <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" alt="Mastercard">
+                            <img src="https://www.logo.wine/a/logo/GoPay/GoPay-Icon-Dark.png" alt="GoPay">
+                            <img src="https://www.logo.wine/a/logo/OVO/OVO-Icon.png" alt="OVO">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Dana_logo.png" alt="Dana">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Loading Spinner Modern -->
+    <div id="loading-spinner" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Memproses...</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+
+    // Preloader
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            document.getElementById('preloader').style.opacity = '0';
+            setTimeout(function() {
+                document.getElementById('preloader').style.display = 'none';
+            }, 500);
+        }, 500);
+    });
+
+    // Back to Top
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+            backToTop.classList.add('show');
+        } else {
+            backToTop.classList.remove('show');
+        }
+    });
+
+    backToTop.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // Auto hide messages
+    document.querySelectorAll('.message-item').forEach(function(message) {
+        setTimeout(function() {
+            message.style.opacity = '0';
+            setTimeout(function() {
+                message.remove();
+            }, 300);
+        }, 5000);
+    });
+    </script>
+
+    <style>
+    /* Temporary styles for base template */
+    .preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s;
+    }
+
+    .preloader-content {
+        text-align: center;
+    }
+
+    .preloader-logo {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .preloader-logo span {
+        color: #4ecdc4;
+    }
+
+    .preloader-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top-color: #4ecdc4;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .message-container {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 350px;
+    }
+
+    .message-item {
+        background: white;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid;
+    }
+
+    .message-success {
+        border-left-color: #48bb78;
+    }
+
+    .message-success .message-icon {
+        color: #48bb78;
+    }
+
+    .message-error {
+        border-left-color: #f56565;
+    }
+
+    .message-error .message-icon {
+        color: #f56565;
+    }
+
+    .message-warning {
+        border-left-color: #ecc94b;
+    }
+
+    .message-warning .message-icon {
+        color: #ecc94b;
+    }
+
+    .message-info {
+        border-left-color: #4299e1;
+    }
+
+    .message-info .message-icon {
+        color: #4299e1;
+    }
+
+    .message-icon i {
+        font-size: 1.5rem;
+    }
+
+    .message-content {
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    .message-close {
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        font-size: 1rem;
+        transition: color 0.3s;
+    }
+
+    .message-close:hover {
+        color: #333;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .main-content {
+        min-height: calc(100vh - 400px);
+    }
+
+    .footer-modern {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: white;
+        padding-top: 60px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .footer-modern::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.02);
+        border-radius: 50%;
+    }
+
+    .footer-modern::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: -50px;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.02);
+        border-radius: 50%;
+    }
+
+    .footer-top {
+        padding-bottom: 40px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .footer-logo {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .footer-logo-text {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .footer-logo-highlight {
+        color: #ffd93d;
+        margin-left: 5px;
+    }
+
+    .footer-description {
+        color: rgba(255,255,255,0.6);
+        margin-bottom: 20px;
+        line-height: 1.8;
+    }
+
+    .footer-social {
+        display: flex;
+        gap: 15px;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.3s;
+    }
+
+    .social-link:hover {
+        background: #4ecdc4;
+        transform: translateY(-3px);
+    }
+
+    .footer-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .footer-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background: #4ecdc4;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+
+    .footer-links a {
+        color: rgba(255,255,255,0.6);
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .footer-links a:hover {
+        color: #4ecdc4;
+        transform: translateX(5px);
+    }
+
+    .footer-app-text {
+        color: rgba(255,255,255,0.6);
+        margin-bottom: 15px;
+    }
+
+    .footer-apps {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .app-button {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        transition: all 0.3s;
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .app-button:hover {
+        background: #4ecdc4;
+        transform: translateY(-3px);
+    }
+
+    .app-button i {
+        font-size: 2rem;
+        color: white;
+    }
+
+    .app-button-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .app-button-text span {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.8);
+    }
+
+    .app-button-text strong {
+        font-size: 1rem;
+        color: white;
+    }
+
+    .footer-bottom {
+        padding: 20px 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .copyright {
+        color: rgba(255,255,255,0.5);
+        margin: 0;
+    }
+
+    .payment-methods {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        justify-content: flex-end;
+    }
+
+    .payment-methods span {
+        color: rgba(255,255,255,0.5);
+        font-size: 0.9rem;
+    }
+
+    .payment-methods img {
+        height: 25px;
+        filter: brightness(0) invert(1);
+        opacity: 0.5;
+        transition: opacity 0.3s;
+    }
+
+    .payment-methods img:hover {
+        opacity: 1;
+    }
+
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 5px 20px rgba(102,126,234,0.3);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+        z-index: 999;
+    }
+
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .back-to-top:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(5px);
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loading-content {
+        text-align: center;
+        color: white;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255,255,255,0.1);
+        border-top-color: #4ecdc4;
+        border-right-color: #ff6b6b;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .payment-methods {
+            justify-content: flex-start;
+            margin-top: 15px;
+        }
+        
+        .message-container {
+            max-width: calc(100% - 40px);
+            right: 20px;
+        }
+        
+        .back-to-top {
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+    </style>
+</body>
+</html>

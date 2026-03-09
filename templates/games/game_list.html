@@ -1,0 +1,870 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daftar Game - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<!-- Hero Section dengan Video Background -->
+<div class="hero-section">
+    <div class="hero-video-background">
+        <video id="heroVideo" autoplay muted loop playsinline>
+        </video>
+    </div>
+    <div class="hero-overlay"></div>
+    
+    <!-- Floating Game Icons -->
+    <div class="floating-icon icon-1"><i class="fas fa-gamepad"></i></div>
+    <div class="floating-icon icon-2"><i class="fas fa-dragon"></i></div>
+    <div class="floating-icon icon-3"><i class="fas fa-crown"></i></div>
+    <div class="floating-icon icon-4"><i class="fas fa-shield-halved"></i></div>
+    <div class="floating-icon icon-5"><i class="fas fa-ghost"></i></div>
+    <div class="floating-icon icon-6"><i class="fas fa-hat-wizard"></i></div>
+    
+    <div class="video-indicator" id="videoIndicator">
+        <i class="fas fa-play-circle"></i> Now playing: <span id="current-game">Mobile Legends</span>
+    </div>
+    
+    <div class="container hero-content">
+        <span class="hero-badge">#1 TOPUP TERPERCAYA</span>
+        <h1 class="hero-title">Topup Game <span class="text-gradient">Termurah</span> & Terpercaya</h1>
+        <p class="hero-subtitle">Dapatkan diamond, voucher, dan item game favoritmu dengan harga terbaik!</p>
+        
+        <form action="{% url 'games:search' %}" method="GET" class="hero-search-form">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="q" class="search-input" placeholder="Cari game..." value="{{ query }}">
+                <button type="submit" class="search-btn">Cari</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Stats Counter -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-gamepad"></i>
+            </div>
+            <div class="stat-number">{{ total_games|default:"50+" }}</div>
+            <div class="stat-label">Game Tersedia</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{{ total_users|default:"10K+" }}</div>
+            <div class="stat-label">Pengguna Aktif</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-number">{{ total_transactions|default:"5K+" }}</div>
+            <div class="stat-label">Transaksi Sukses</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Layanan</div>
+        </div>
+    </div>
+
+    <!-- Flash Sale Banner -->
+    <div class="flash-sale">
+        <div class="flash-sale-content">
+            <div class="flash-tag">FLASH SALE</div>
+            <h2>Diskon Spesial Akhir Pekan!</h2>
+            <p>Dapatkan diskon hingga <span class="highlight">20%</span> untuk semua game populer</p>
+            <div class="countdown" id="countdown">
+                <div class="countdown-item">
+                    <span class="countdown-value" id="hours">24</span>
+                    <span class="countdown-label">Jam</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="minutes">00</span>
+                    <span class="countdown-label">Menit</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="seconds">00</span>
+                    <span class="countdown-label">Detik</span>
+                </div>
+            </div>
+        </div>
+        <div class="flash-sale-products">
+            <div class="sale-badge">
+                <span class="discount">-20%</span>
+                <span class="product">ML Diamond</span>
+            </div>
+            <div class="sale-badge">
+                <span class="discount">-15%</span>
+                <span class="product">FF Diamond</span>
+            </div>
+            <div class="sale-badge">
+                <span class="discount">-10%</span>
+                <span class="product">UC PUBG</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="category-filters">
+        <button class="category-filter active">Semua</button>
+        <button class="category-filter">Populer</button>
+        <button class="category-filter">Mobile Legends</button>
+        <button class="category-filter">Free Fire</button>
+        <button class="category-filter">PUBG</button>
+        <button class="category-filter">Genshin Impact</button>
+    </div>
+
+    <!-- Featured Games Section -->
+    <div class="section-header">
+        <div>
+            <span class="section-subtitle">TOP UP SEKARANG</span>
+            <h2 class="section-title">Game <span class="text-gradient">Populer</span></h2>
+        </div>
+        <p class="section-description">Pilih game favoritmu dan dapatkan harga spesial!</p>
+    </div>
+    
+    <!-- Game Grid -->
+<div class="game-grid">
+    {% for game in games %}
+    <div class="game-card">
+        <div class="game-image">
+            {% if game.icon %}
+                <img src="{{ game.icon.url }}" alt="{{ game.name }}">
+            {% else %}
+                <div class="image-placeholder">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+            {% endif %}
+            
+            {% if forloop.first %}
+            <div class="game-badge hot">HOT SALE</div>
+            {% endif %}
+            
+            {% if game.is_new %}
+            <div class="game-badge new">BARU</div>
+            {% endif %}
+        </div>
+        
+        <div class="game-info">
+            <h3 class="game-name">{{ game.name }}</h3>
+            <p class="game-desc">{{ game.description|truncatewords:10 }}</p>
+            
+            {% if game.popular_items %}
+            <div class="popular-items">
+                <div class="popular-label">
+                    <i class="fas fa-fire"></i>
+                    <span>POPULER</span>
+                </div>
+                <div class="item-tags">
+                    {% for item in game.popular_items|slice:":3" %}
+                    <span class="item-tag">{{ item.amount }} (Rp {{ item.price|floatformat:0 }})</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Placeholder untuk menjaga tinggi card tetap konsisten -->
+            <div class="popular-items-placeholder"></div>
+            {% endif %}
+            
+            <a href="{% url 'games:detail' game.slug %}" class="game-action">
+                <span>Lihat Item</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="fas fa-gamepad"></i>
+        <h3>Belum ada game tersedia</h3>
+        <p>Silakan kembali lagi nanti</p>
+    </div>
+    {% endfor %}
+</div>
+
+    <!-- ===== TRENDING GAMES SECTION - DIPERBAIKI ===== -->
+    <div class="trending-section">
+        <div class="section-header">
+            <div>
+                <span class="section-subtitle">PALING LARIS</span>
+                <h2 class="section-title">🔥 Trending <span class="text-gradient">Saat Ini</span></h2>
+            </div>
+            <a href="#" class="view-all">
+                Lihat Semua
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="trending-grid">
+            <div class="trending-card featured">
+                <div class="trending-rank gold">#1</div>
+                <div class="trending-content">
+                    <div class="trending-game-icon">
+                        <i class="fas fa-dragon"></i>
+                    </div>
+                    <div class="trending-info">
+                        <h4>Mobile Legends</h4>
+                        <div class="trending-meta">
+                            <span><i class="fas fa-diamond"></i> 85 Diamonds</span>
+                            <span><i class="fas fa-tag"></i> Rp 23.000</span>
+                        </div>
+                        <div class="trending-stats">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="trending-number">+1.234</span>
+                            <span class="trending-label">hari ini</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trending-card">
+                <div class="trending-rank silver">#2</div>
+                <div class="trending-content">
+                    <div class="trending-game-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="trending-info">
+                        <h4>Free Fire</h4>
+                        <div class="trending-meta">
+                            <span><i class="fas fa-diamond"></i> 140 Diamonds</span>
+                            <span><i class="fas fa-tag"></i> Rp 34.000</span>
+                        </div>
+                        <div class="trending-stats">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="trending-number">+980</span>
+                            <span class="trending-label">hari ini</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trending-card">
+                <div class="trending-rank bronze">#3</div>
+                <div class="trending-content">
+                    <div class="trending-game-icon">
+                        <i class="fas fa-ghost"></i>
+                    </div>
+                    <div class="trending-info">
+                        <h4>PUBG Mobile</h4>
+                        <div class="trending-meta">
+                            <span><i class="fas fa-coins"></i> 60 UC</span>
+                            <span><i class="fas fa-tag"></i> Rp 16.622</span>
+                        </div>
+                        <div class="trending-stats">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="trending-number">+750</span>
+                            <span class="trending-label">hari ini</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trending-card">
+                <div class="trending-rank">#4</div>
+                <div class="trending-content">
+                    <div class="trending-game-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="trending-info">
+                        <h4>Genshin Impact</h4>
+                        <div class="trending-meta">
+                            <span><i class="fas fa-crystal"></i> 60 Crystals</span>
+                            <span><i class="fas fa-tag"></i> Rp 18.000</span>
+                        </div>
+                        <div class="trending-stats">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="trending-number">+620</span>
+                            <span class="trending-label">hari ini</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- ===== ARTIKEL SECTION - AMBIL DARI DATABASE ===== -->
+<div class="articles-section">
+    <div class="section-header">
+        <div>
+            <span class="section-subtitle">UPDATE TERBARU</span>
+            <h2 class="section-title">📰 Berita <span class="text-gradient">Game</span></h2>
+        </div>
+        <a href="{% url 'games:article_list' %}" class="view-all">
+            Lihat Semua
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="articles-grid">
+        {% for article in latest_articles %}
+        <div class="article-card">
+            <div class="article-image">
+                {% if article.image %}
+                    <img src="{{ article.image.url }}" alt="{{ article.title }}">
+                {% else %}
+                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, {{ article.category.color }}20, {{ article.category.color }}40); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-newspaper" style="font-size: 3rem; color: {{ article.category.color }};"></i>
+                    </div>
+                {% endif %}
+                <div class="article-category" style="background: {{ article.category.color }};">
+                    {{ article.category.name }}
+                </div>
+            </div>
+            <div class="article-content">
+                <h4 class="article-title">{{ article.title }}</h4>
+                <p class="article-excerpt">{{ article.excerpt|default:article.content|truncatewords:15 }}</p>
+                <div class="article-meta">
+                    <span><i class="fas fa-calendar"></i> {{ article.published_at|timesince }} lalu</span>
+                    <span><i class="fas fa-eye"></i> {{ article.views }} views</span>
+                </div>
+                <a href="{% url 'games:article_detail' article.slug %}" class="article-link">
+                    Baca Selengkapnya
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+            <h3>Belum ada artikel</h3>
+            <p class="text-muted">Artikel akan segera hadir</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+    <!-- ===== NEWSLETTER SECTION - DIPERBAIKI ===== -->
+    <div class="newsletter-section">
+        <div class="newsletter-content">
+            <div class="newsletter-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <h3>Dapatkan Update Promo Terbaru!</h3>
+            <p>Langganan newsletter kami untuk mendapatkan info promo, diskon spesial, dan berita game terbaru langsung di emailmu.</p>
+            <form class="newsletter-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" placeholder="Masukkan email Anda" required>
+                </div>
+                <button type="submit">
+                    <span>Langganan</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+            <p class="newsletter-note">*Gratis, bisa berhenti kapan saja</p>
+        </div>
+        
+        <!-- Floating Benefits -->
+        <div class="newsletter-benefits">
+            <div class="benefit-item">
+                <i class="fas fa-gem"></i>
+                <span>Diskon Eksklusif</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-bell"></i>
+                <span>Info Update Game</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-gift"></i>
+                <span>Giveaway Spesial</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Sementara tambahkan CSS di sini, nanti akan dipindah ke style.css */
+
+/* ===== TRENDING SECTION IMPROVED ===== */
+.trending-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.trending-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s;
+}
+
+.trending-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(102,126,234,0.15);
+    border-color: transparent;
+}
+
+.trending-card.featured {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.trending-card.featured .trending-rank {
+    color: rgba(255,255,255,0.3);
+}
+
+.trending-card.featured .trending-info h4 {
+    color: white;
+}
+
+.trending-card.featured .trending-meta span {
+    color: rgba(255,255,255,0.8);
+}
+
+.trending-rank {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.trending-rank.gold {
+    color: #fbbf24;
+}
+
+.trending-rank.silver {
+    color: #94a3b8;
+}
+
+.trending-rank.bronze {
+    color: #b45309;
+}
+
+.trending-content {
+    display: flex;
+    gap: 1rem;
+}
+
+.trending-game-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea20, #764ba220);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.trending-card.featured .trending-game-icon {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.trending-info {
+    flex: 1;
+}
+
+.trending-info h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.trending-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.trending-meta span {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.trending-meta i {
+    width: 16px;
+    margin-right: 0.25rem;
+    color: #667eea;
+}
+
+.trending-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #10b981;
+    background: #d1fae5;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    width: fit-content;
+}
+
+.trending-card.featured .trending-stats {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.trending-number {
+    font-weight: 700;
+}
+
+.trending-label {
+    color: #6b7280;
+}
+
+.trending-card.featured .trending-label {
+    color: rgba(255,255,255,0.8);
+}
+
+/* ===== ARTICLES SECTION IMPROVED ===== */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.article-card {
+    background: white;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(102,126,234,0.15);
+}
+
+.article-card.featured {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.article-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.article-card.featured .article-image {
+    height: 100%;
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.article-card:hover .article-image img {
+    transform: scale(1.1);
+}
+
+.article-category {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.35rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.article-content {
+    padding: 1.5rem;
+}
+
+.article-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.article-card.featured .article-title {
+    font-size: 1.4rem;
+}
+
+.article-excerpt {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.article-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.article-meta i {
+    margin-right: 0.25rem;
+    color: #667eea;
+}
+
+.article-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.article-link:hover {
+    gap: 0.75rem;
+    color: #764ba2;
+}
+
+/* ===== NEWSLETTER SECTION IMPROVED ===== */
+.newsletter-section {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 2rem;
+    padding: 4rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin: 4rem 0;
+}
+
+.newsletter-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite;
+}
+
+.newsletter-section::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    animation: float 15s ease-in-out infinite reverse;
+}
+
+.newsletter-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.newsletter-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.newsletter-content h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.newsletter-content p {
+    opacity: 0.95;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    flex: 1;
+    position: relative;
+}
+
+.input-group i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.newsletter-form input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.5rem;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+
+.newsletter-form input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.3);
+}
+
+.newsletter-form button {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 1rem;
+    background: white;
+    color: #667eea;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.newsletter-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.newsletter-note {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: 0.5rem;
+}
+
+.newsletter-benefits {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .trending-grid,
+    .articles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .article-card.featured {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .trending-grid,
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .article-card.featured {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
+    }
+    
+    .newsletter-section {
+        padding: 2rem;
+    }
+    
+    .newsletter-form {
+        flex-direction: column;
+    }
+    
+    .newsletter-benefits {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/hero-video.js' %}"></script>
+<script>
+// Countdown Timer
+function updateCountdown() {
+    const endTime = new Date();
+    endTime.setHours(endTime.getHours() + 24);
+    
+    function updateTimer() {
+        const now = new Date();
+        const diff = endTime - now;
+        
+        if (diff <= 0) {
+            endTime.setHours(endTime.getHours() + 24);
+        }
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    }
+    
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+// Category Filter
+document.querySelectorAll('.category-filter').forEach(filter => {
+    filter.addEventListener('click', function() {
+        document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show notification
+        showNotification(`Filter: ${this.textContent}`, 'info');
+    });
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateCountdown();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+[
+    {
+        "model": "orders.paymentmethod",
+        "pk": 1,
+        "fields": {
+            "name": "BCA",
+            "code": "bca",
+            "category": "bank",
+            "description": "Transfer Bank BCA",
+            "logo": "payments/bca.jpeg",
+            "is_active": true,
+            "sort_order": 1
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 2,
+        "fields": {
+            "name": "BNI",
+            "code": "bni",
+            "category": "bank",
+            "description": "Transfer Bank BNI",
+            "logo": "payments/bni.jpeg",
+            "is_active": true,
+            "sort_order": 2
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 3,
+        "fields": {
+            "name": "BRI",
+            "code": "bri",
+            "category": "bank",
+            "description": "Transfer Bank BRI",
+            "logo": "payments/bri.jpeg",
+            "is_active": true,
+            "sort_order": 3
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 4,
+        "fields": {
+            "name": "CIMB",
+            "code": "cimb",
+            "category": "bank",
+            "description": "Transfer Bank CIMB",
+            "logo": "payments/cimb.jpeg",
+            "is_active": true,
+            "sort_order": 4
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 5,
+        "fields": {
+            "name": "Mandiri",
+            "code": "mandiri",
+            "category": "bank",
+            "description": "Transfer Bank Mandiri",
+            "logo": "payments/mandiri.jpeg",
+            "is_active": true,
+            "sort_order": 5
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 6,
+        "fields": {
+            "name": "Permata",
+            "code": "permata",
+            "category": "bank",
+            "description": "Transfer Bank Permata",
+            "logo": "payments/permata.jpeg",
+            "is_active": true,
+            "sort_order": 6
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 7,
+        "fields": {
+            "name": "GoPay",
+            "code": "gopay",
+            "category": "ewallet",
+            "description": "GoPay E-Wallet",
+            "logo": "payments/gopay.jpeg",
+            "is_active": true,
+            "sort_order": 1
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 8,
+        "fields": {
+            "name": "OVO",
+            "code": "ovo",
+            "category": "ewallet",
+            "description": "OVO E-Wallet",
+            "logo": "payments/ovo.jpeg",
+            "is_active": true,
+            "sort_order": 2
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 9,
+        "fields": {
+            "name": "DANA",
+            "code": "dana",
+            "category": "ewallet",
+            "description": "DANA E-Wallet",
+            "logo": "payments/dana.jpeg",
+            "is_active": true,
+            "sort_order": 3
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 10,
+        "fields": {
+            "name": "ShopeePay",
+            "code": "shopeepay",
+            "category": "ewallet",
+            "description": "ShopeePay E-Wallet",
+            "logo": "payments/shopeepay.jpeg",
+            "is_active": true,
+            "sort_order": 4
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 11,
+        "fields": {
+            "name": "LinkAja",
+            "code": "linkaja",
+            "category": "ewallet",
+            "description": "LinkAja E-Wallet",
+            "logo": "payments/linkaja.jpeg",
+            "is_active": true,
+            "sort_order": 5
+        }
+    },
+    {
+        "model": "orders.paymentmethod",
+        "pk": 12,
+        "fields": {
+            "name": "QRIS",
+            "code": "qris",
+            "category": "qris",
+            "description": "QRIS Semua Aplikasi",
+            "logo": "payments/qris.jpeg",
+            "is_active": true,
+            "sort_order": 1
+        }
+    }
+]

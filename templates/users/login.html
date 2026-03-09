@@ -1,0 +1,125 @@
+<!-- templates/users/login.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Login - Web Topup{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Video Background -->
+<div class="video-background">
+    <video autoplay muted loop playsinline id="bgVideo">
+        <source src="{% static 'videos/background-login-daftar.mp4' %}" type="video/mp4">
+        Browser Anda tidak mendukung video tag.
+    </video>
+</div>
+<div class="overlay"></div>
+
+<!-- Audio Background - PASTIKAN ID BENAR -->
+<audio id="bgMusic" loop preload="auto">
+    <source src="{% static 'audio/background-music.mp3' %}" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<!-- Music Control -->
+<div class="music-control" onclick="toggleMusic()" id="musicControl">
+    <i class="fas fa-music" id="musicIcon"></i>
+    <span class="music-text" id="musicStatus">Putar Musik</span>
+</div>
+
+<!-- Volume Control -->
+<div class="volume-control" id="volumeControl">
+    <div class="volume-label">
+        <span><i class="fas fa-volume-down"></i></span>
+        <span id="volumePercent">50%</span>
+        <span><i class="fas fa-volume-up"></i></span>
+    </div>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.3">
+</div>
+
+<div class="login-container">
+    <!-- Floating Game Icons -->
+    <div class="floating-game" style="top: 10%; left: 10%;"><i class="fas fa-gamepad"></i></div>
+    <div class="floating-game" style="top: 20%; right: 15%; animation-delay: 1s;"><i class="fas fa-diamond"></i></div>
+    <div class="floating-game" style="bottom: 15%; left: 20%; animation-delay: 2s;"><i class="fas fa-credit-card"></i></div>
+    <div class="floating-game" style="bottom: 25%; right: 25%; animation-delay: 1.5s;"><i class="fas fa-crown"></i></div>
+    
+    <!-- Login Card -->
+    <div class="login-card">
+        <div class="login-header">
+            <h2>🎮 Selamat Datang</h2>
+            <p>Login untuk mendapatkan promo spesial!</p>
+        </div>
+        
+        <!-- Social Login Buttons -->
+        <div class="social-login">
+            <a href="{% provider_login_url 'google' %}" class="social-btn google">
+                <i class="fab fa-google"></i>
+                Lanjutkan dengan Google
+            </a>
+        </div>
+        
+        <div class="divider">
+            <span>atau</span>
+        </div>
+        
+        <!-- Login Form -->
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username">
+                    <i class="fas fa-user me-2"></i>Username / Email
+                </label>
+                <input type="text" name="username" class="form-control" id="id_username" 
+                       placeholder="moba" value="{{ form.username.value|default:'' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <input type="password" name="password" class="form-control" id="id_password" 
+                       placeholder="********" required>
+            </div>
+            
+            {% if form.errors %}
+            <div class="errorlist">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Username atau password salah. Silakan coba lagi.
+            </div>
+            {% endif %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </button>
+            
+            <div class="register-link">
+                <p>Belum punya akun? 
+                    <a href="{% url 'users:register' %}">
+                        Daftar Sekarang <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/music.js' %}"></script>
+<!-- Hanya load password-validation.js di halaman register, bukan di login -->
+{% endblock %}

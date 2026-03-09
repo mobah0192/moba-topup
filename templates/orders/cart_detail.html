@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Keranjang Belanja - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<div class="cart-page">
+    <div class="container">
+        <!-- Header dengan progress step -->
+        <div class="cart-header-modern">
+            <div class="cart-header-left">
+                <h1 class="cart-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Keranjang Belanja
+                </h1>
+                <p class="cart-subtitle">Kelola item yang akan Anda top up</p>
+            </div>
+            <div class="cart-badge">
+                <span class="badge-count">{{ cart|length }}</span>
+                <span class="badge-label">Item</span>
+            </div>
+        </div>
+
+        <!-- Progress Step -->
+        <div class="checkout-steps">
+            <div class="step active">
+                <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="step-label">Keranjang</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                <div class="step-label">Pembayaran</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="step-label">Selesai</div>
+            </div>
+        </div>
+        
+        {% if cart %}
+        <div class="row">
+            <!-- Daftar Item di Cart -->
+            <div class="col-lg-8">
+                <div class="cart-items-modern">
+                    {% for item in cart %}
+                    {% with game_item=item.item %}
+                    <div class="cart-item-modern" data-item-id="{{ game_item.id }}">
+                        <div class="cart-item-image">
+                            {% if game_item.category.game.icon %}
+                                <img src="{{ game_item.category.game.icon.url }}" alt="{{ game_item.category.game.name }}">
+                            {% else %}
+                                <div class="image-placeholder">
+                                    <i class="fas fa-gamepad"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="cart-item-details">
+                            <div class="item-game">{{ game_item.category.game.name }}</div>
+                            <div class="item-name">{{ game_item.name }}</div>
+                            <div class="item-meta">
+                                <span class="item-amount">
+                                    <i class="fas fa-cube"></i>
+                                    {{ game_item.amount }}
+                                </span>
+                                <span class="item-price-per">
+                                    <i class="fas fa-tag"></i>
+                                    Rp {{ game_item.price|floatformat:0 }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-item-price">
+                            <div class="price-label">Total Harga</div>
+                            <div class="price-value">Rp {{ item.total_price|floatformat:0 }}</div>
+                        </div>
+                        
+                        <div class="cart-item-actions">
+                            <div class="quantity-control-modern">
+                                <button class="quantity-btn" onclick="updateQuantity({{ game_item.id }}, -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="text" class="quantity-input" value="{{ item.quantity }}" readonly>
+                                <button class="quantity-btn" onclick="updateQuantity({{ game_item.id }}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <button class="remove-btn" onclick="removeItem({{ game_item.id }})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+
+                <!-- Rekomendasi Item -->
+                <div class="related-items">
+                    <h3 class="related-title">
+                        <i class="fas fa-fire"></i>
+                        Item Populer Lainnya
+                    </h3>
+                    <div class="related-grid">
+                        <div class="related-card">
+                            <div class="related-game">Mobile Legends</div>
+                            <div class="related-item">86 Diamonds</div>
+                            <div class="related-price">Rp 23.000</div>
+                            <button class="related-add">+ Tambah</button>
+                        </div>
+                        <div class="related-card">
+                            <div class="related-game">Free Fire</div>
+                            <div class="related-item">140 Diamonds</div>
+                            <div class="related-price">Rp 34.000</div>
+                            <button class="related-add">+ Tambah</button>
+                        </div>
+                        <div class="related-card">
+                            <div class="related-game">PUBG Mobile</div>
+                            <div class="related-item">60 UC</div>
+                            <div class="related-price">Rp 16.622</div>
+                            <button class="related-add">+ Tambah</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ringkasan Checkout -->
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h3 class="summary-card-title">
+                        <i class="fas fa-receipt"></i>
+                        Ringkasan Belanja
+                    </h3>
+                    
+                    <div class="summary-list">
+                        <div class="summary-item">
+                            <span>Total Item</span>
+                            <span class="summary-value">{{ cart|length }} item</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Total Harga</span>
+                            <span class="summary-value">Rp {{ cart.get_total_price|floatformat:0 }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Biaya Layanan</span>
+                            <span class="summary-value free">Gratis</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-total">
+                            <span>Total Pembayaran</span>
+                            <span class="total-amount">Rp {{ cart.get_total_price|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-actions">
+                        {% if user.is_authenticated %}
+                            <button class="btn-checkout" onclick="checkout()">
+                                <i class="fas fa-lock"></i>
+                                Checkout Sekarang
+                            </button>
+                        {% else %}
+                            <a href="{% url 'users:login' %}?next={% url 'orders:checkout' %}" class="btn-checkout">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Login untuk Checkout
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'games:list' %}" class="btn-continue">
+                            <i class="fas fa-arrow-left"></i>
+                            Lanjut Belanja
+                        </a>
+                    </div>
+                    
+                    <!-- Payment Methods -->
+                    <div class="payment-methods">
+                        <p class="payment-title">Metode Pembayaran</p>
+                        <div class="payment-icons">
+                            <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Visa">
+                            <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" alt="Mastercard">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
+                            <img src="https://www.logo.wine/a/logo/GoPay/GoPay-Icon-Dark.png" alt="GoPay">
+                            <img src="https://www.logo.wine/a/logo/OVO/OVO-Icon.png" alt="OVO">
+                            <span>+6</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Badge -->
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="security-text">
+                            <strong>Belanja Aman</strong>
+                            <span>Data Anda terenkripsi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Cart Kosong dengan desain menarik -->
+        <div class="empty-cart-modern">
+            <div class="empty-cart-animation">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="empty-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <h3>Keranjang Belanja Kosong</h3>
+            <p>Yuk, pilih game favoritmu dan top up sekarang!</p>
+            <div class="empty-actions">
+                <a href="{% url 'games:list' %}" class="btn-explore">
+                    <i class="fas fa-gamepad"></i>
+                    Jelajahi Game
+                </a>
+                <a href="{% url 'games:list' %}" class="btn-popular">
+                    <i class="fas fa-fire"></i>
+                    Lihat Populer
+                </a>
+            </div>
+            
+            <!-- Rekomendasi saat cart kosong -->
+            <div class="empty-recommendations">
+                <h4>Rekomendasi Untukmu</h4>
+                <div class="recommend-grid">
+                    <div class="recommend-card">
+                        <i class="fas fa-dragon"></i>
+                        <span>Mobile Legends</span>
+                    </div>
+                    <div class="recommend-card">
+                        <i class="fas fa-fire"></i>
+                        <span>Free Fire</span>
+                    </div>
+                    <div class="recommend-card">
+                        <i class="fas fa-ghost"></i>
+                        <span>PUBG Mobile</span>
+                    </div>
+                    <div class="recommend-card">
+                        <i class="fas fa-crown"></i>
+                        <span>Genshin Impact</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                <h5>Hapus Item?</h5>
+                <p class="text-muted">Item akan dihapus dari keranjang Anda</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let deleteItemId = null;
+
+function updateQuantity(itemId, change) {
+    const item = document.querySelector(`[data-item-id="${itemId}"]`);
+    const input = item.querySelector('.quantity-input');
+    let quantity = parseInt(input.value) + change;
+    
+    if (quantity < 1) quantity = 1;
+    
+    // Show loading state
+    const btn = event.target.closest('.quantity-btn');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    
+    fetch(`/orders/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: quantity })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Jumlah berhasil diupdate', 'success');
+            setTimeout(() => location.reload(), 500);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Gagal mengupdate jumlah', 'error');
+    })
+    .finally(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+    });
+}
+
+function removeItem(itemId) {
+    deleteItemId = itemId;
+    
+    // Gunakan confirm biasa untuk simplicity
+    if (confirm('Hapus item ini dari keranjang?')) {
+        const btn = event.target.closest('.remove-btn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        
+        fetch(`/orders/cart/remove/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Item dihapus dari keranjang', 'success');
+                setTimeout(() => location.reload(), 500);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Gagal menghapus item', 'error');
+        })
+        .finally(() => {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+    }
+}
+
+function checkout() {
+    // Show loading
+    const btn = document.querySelector('.btn-checkout');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        window.location.href = '{% url "orders:checkout" %}';
+    }, 500);
+}
+
+function showNotification(message, type = 'success') {
+    // Cek apakah sudah ada toast container
+    let toast = document.querySelector('.toast-notification');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        document.body.appendChild(toast);
+    }
+    
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    if (type === 'error') {
+        toast.style.background = '#fee';
+        toast.style.color = '#dc3545';
+    } else {
+        toast.style.background = '#4BB543';
+        toast.style.color = 'white';
+    }
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+</script>
+{% endblock %}

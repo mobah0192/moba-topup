@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'games:list' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'games:article_list' %}">Artikel</a></li>
+                    <li class="breadcrumb-item active">{{ article.category.name }}</li>
+                </ol>
+            </nav>
+            
+            <!-- Article Header -->
+            <div class="mb-4">
+                <span class="badge mb-2" style="background: {{ article.category.color }}; color: white; padding: 8px 20px; border-radius: 30px;">
+                    {{ article.category.name }}
+                </span>
+                <h1 class="display-4 fw-bold">{{ article.title }}</h1>
+                
+                <div class="d-flex align-items-center text-muted mt-3">
+                    <i class="fas fa-user-circle me-2 fs-5"></i>
+                    <span class="me-4">{{ article.author|default:"Admin" }}</span>
+                    
+                    <i class="fas fa-calendar me-2 fs-5"></i>
+                    <span class="me-4">{{ article.published_at|date:"d M Y" }}</span>
+                    
+                    <i class="fas fa-eye me-2 fs-5"></i>
+                    <span>{{ article.views }} views</span>
+                </div>
+            </div>
+            
+            <!-- Featured Image -->
+            {% if article.image %}
+            <div class="mb-5">
+                <img src="{{ article.image.url }}" class="img-fluid rounded-4 w-100" alt="{{ article.title }}" style="max-height: 500px; object-fit: cover;">
+            </div>
+            {% endif %}
+            
+            <!-- Article Content -->
+            <div class="article-content mb-5" style="font-size: 1.1rem; line-height: 1.8;">
+                {{ article.content|linebreaks }}
+            </div>
+            
+            <!-- Related Articles -->
+            {% if related_articles %}
+            <div class="related-articles mt-5 pt-4 border-top">
+                <h3 class="mb-4">Artikel Terkait</h3>
+                <div class="row">
+                    {% for related in related_articles %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            {% if related.image %}
+                            <img src="{{ related.image.url }}" class="card-img-top" alt="{{ related.title }}" style="height: 150px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <span class="badge mb-2" style="background: {{ related.category.color }};">{{ related.category.name }}</span>
+                                <h5 class="card-title">{{ related.title }}</h5>
+                                <p class="card-text text-muted">{{ related.excerpt|truncatewords:10 }}</p>
+                                <a href="{% url 'games:article_detail' related.slug %}" class="btn btn-outline-primary btn-sm">Baca →</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

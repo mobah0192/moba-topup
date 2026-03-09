@@ -1,0 +1,184 @@
+<!-- templates/users/register.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daftar Akun Baru - MOBA TOPUP{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Video Background -->
+<div class="video-background">
+    <video autoplay muted loop playsinline id="bgVideo">
+        <source src="{% static 'videos/background-login-daftar.mp4' %}" type="video/mp4">
+        Browser Anda tidak mendukung video tag.
+    </video>
+</div>
+<div class="overlay"></div>
+
+<!-- Audio Background -->
+<audio id="bgMusic" loop preload="auto" crossorigin="anonymous">
+    <source src="{% static 'audio/background-music.mp3' %}" type="audio/mpeg">
+</audio>
+
+<!-- Music Control -->
+<div class="music-control" onclick="toggleMusic()" id="musicControl">
+    <i class="fas fa-music" id="musicIcon"></i>
+    <span class="music-text" id="musicStatus">Putar Musik</span>
+</div>
+
+<!-- Volume Control -->
+<div class="volume-control" id="volumeControl">
+    <div class="volume-label">
+        <span><i class="fas fa-volume-down"></i></span>
+        <span id="volumePercent">50%</span>
+        <span><i class="fas fa-volume-up"></i></span>
+    </div>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.3">
+</div>
+
+<div class="register-container">
+    <!-- Floating Game Icons -->
+    <div class="floating-game" style="top: 10%; left: 10%;"><i class="fas fa-gamepad"></i></div>
+    <div class="floating-game" style="top: 20%; right: 15%; animation-delay: 1s;"><i class="fas fa-diamond"></i></div>
+    <div class="floating-game" style="bottom: 15%; left: 20%; animation-delay: 2s;"><i class="fas fa-credit-card"></i></div>
+    <div class="floating-game" style="bottom: 25%; right: 25%; animation-delay: 1.5s;"><i class="fas fa-crown"></i></div>
+    
+    <!-- Register Card -->
+    <div class="register-card">
+        <div class="register-header">
+            <h2>🎮 Buat Akun Baru</h2>
+            <p>Dapatkan akses ke semua fitur dan promo!</p>
+        </div>
+        
+        <!-- Register Form -->
+        <form method="POST" action="{% url 'users:register' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username">
+                    <i class="fas fa-user"></i>Username
+                </label>
+                <input type="text" 
+                       name="username" 
+                       class="form-control" 
+                       id="id_username" 
+                       placeholder="Masukkan username" 
+                       value="{{ form.username.value|default:'' }}" 
+                       required>
+                {% if form.username.errors %}
+                    <div class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li><i class="fas fa-exclamation-circle"></i>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_email">
+                    <i class="fas fa-envelope"></i>Email
+                </label>
+                <input type="email" 
+                       name="email" 
+                       class="form-control" 
+                       id="id_email" 
+                       placeholder="Masukkan email" 
+                       value="{{ form.email.value|default:'' }}" 
+                       required>
+                {% if form.email.errors %}
+                    <div class="errorlist">
+                        {% for error in form.email.errors %}
+                            <li><i class="fas fa-exclamation-circle"></i>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password1">
+                    <i class="fas fa-lock"></i>Password
+                </label>
+                <input type="password" 
+                       name="password1" 
+                       class="form-control" 
+                       id="id_password1" 
+                       placeholder="Minimal 8 karakter" 
+                       required>
+                {% if form.password1.errors %}
+                    <div class="errorlist">
+                        {% for error in form.password1.errors %}
+                            <li><i class="fas fa-exclamation-circle"></i>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password2">
+                    <i class="fas fa-lock"></i>Konfirmasi Password
+                </label>
+                <input type="password" 
+                       name="password2" 
+                       class="form-control" 
+                       id="id_password2" 
+                       placeholder="Ketik ulang password" 
+                       required>
+                {% if form.password2.errors %}
+                    <div class="errorlist">
+                        {% for error in form.password2.errors %}
+                            <li><i class="fas fa-exclamation-circle"></i>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Password Requirements -->
+            <ul class="password-requirements" id="passwordRequirements">
+                <li id="req-length"><i class="fas fa-circle"></i> Minimal 8 karakter</li>
+                <li id="req-number"><i class="fas fa-circle"></i> Tidak boleh hanya angka</li>
+                <li id="req-common"><i class="fas fa-circle"></i> Tidak boleh password umum</li>
+            </ul>
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <button type="submit" class="btn-register">
+                <i class="fas fa-user-plus"></i>Daftar Sekarang
+            </button>
+            
+            <div class="login-link">
+                <p>Sudah punya akun? 
+                    <a href="{% url 'users:login' %}">
+                        Login di sini <i class="fas fa-arrow-right"></i>
+                    </a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/music.js' %}"></script>
+<script src="{% static 'js/password-validation.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Berita & Artikel Game{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold mb-4">
+                <i class="fas fa-newspaper me-3 text-primary"></i>
+                Berita Game Terbaru
+            </h1>
+        </div>
+    </div>
+    
+    <!-- Categories -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'games:article_list' %}" class="btn btn-outline-primary rounded-pill {% if not current_category %}active{% endif %}">
+                    Semua
+                </a>
+                {% for category in categories %}
+                <a href="{% url 'games:article_by_category' category.slug %}" class="btn btn-outline-primary rounded-pill {% if current_category == category.slug %}active{% endif %}">
+                    {{ category.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Articles Grid -->
+    <div class="row">
+        {% for article in articles %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-scale">
+                {% if article.image %}
+                <img src="{{ article.image.url }}" class="card-img-top" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-newspaper fa-4x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge mb-2" style="background: {{ article.category.color }};">{{ article.category.name }}</span>
+                    <h5 class="card-title">{{ article.title }}</h5>
+                    <p class="card-text text-muted">{{ article.excerpt|truncatewords:15 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            <i class="fas fa-eye me-1"></i> {{ article.views }}
+                            <i class="fas fa-clock ms-2 me-1"></i> {{ article.published_at|timesince }} lalu
+                        </div>
+                        <a href="{% url 'games:article_detail' article.slug %}" class="btn btn-sm btn-primary rounded-pill">
+                            Baca <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+            <h3>Belum ada artikel</h3>
+            <p class="text-muted">Artikel akan segera hadir</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if articles.has_other_pages %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if articles.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ articles.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for i in articles.paginator.page_range %}
+            <li class="page-item {% if articles.number == i %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}{% if current_category %}&category={{ current_category }}{% endif %}">{{ i }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if articles.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ articles.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+.hover-scale {
+    transition: transform 0.3s;
+}
+.hover-scale:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}

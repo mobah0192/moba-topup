@@ -1,0 +1,503 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profil - MOBA TOPUP{% endblock %}
+
+{% block content %}
+<div class="profile-edit-page">
+    <div class="container py-5">
+        <!-- Premium Header -->
+        <div class="profile-header text-center mb-5">
+            <div class="premium-badge mb-3">
+                <span class="badge-premium">
+                    <i class="fas fa-crown me-2"></i>EDIT PROFILE
+                </span>
+            </div>
+            <h1 class="profile-title">
+                <span class="title-gradient">Ubah Profil</span>
+                <span class="title-sub">{{ user.username }}</span>
+            </h1>
+            <div class="title-decoration">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Edit Profile Card Premium -->
+                <div class="edit-card-premium">
+                    <div class="card-glow"></div>
+                    
+                    <div class="card-content">
+                        <!-- Avatar Section -->
+                        <div class="avatar-section">
+                            <div class="avatar-wrapper">
+                                <i class="fas fa-user-circle"></i>
+                                <div class="avatar-glow"></div>
+                            </div>
+                            <h4 class="username">{{ user.username }}</h4>
+                            <p class="member-since">Member sejak {{ user.date_joined|date:"F Y" }}</p>
+                        </div>
+
+                        <!-- Edit Form -->
+                        <form method="POST" class="edit-form">
+                            {% csrf_token %}
+                            
+                           <!-- Username Field -->
+<div class="form-group-premium">
+    <label class="form-label">
+        <i class="fas fa-user"></i>
+        <span>Nama Pengguna</span>
+        <span class="required">*</span>
+    </label>
+    <input type="text" 
+           name="username" 
+           class="form-control-premium {% if form.username.errors %}error{% endif %}"
+           value="{{ form.username.value|default:'' }}"
+           placeholder="Masukkan username"
+           required>
+    {% if form.username.errors %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ form.username.errors.0 }}
+    </div>
+    {% else %}
+    <small class="field-note">
+        <i class="fas fa-info-circle"></i>
+        Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+    </small>
+    {% endif %}
+</div>
+
+<!-- Email Field -->
+<div class="form-group-premium">
+    <label class="form-label">
+        <i class="fas fa-envelope"></i>
+        <span>Alamat E-mail</span>
+        <span class="required">*</span>
+    </label>
+    <input type="email" 
+           name="email" 
+           class="form-control-premium {% if form.email.errors %}error{% endif %}"
+           value="{{ form.email.value|default:'' }}"
+           placeholder="Masukkan email"
+           required>
+    {% if form.email.errors %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ form.email.errors.0 }}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Phone Number Field -->
+<div class="form-group-premium">
+    <label class="form-label">
+        <i class="fas fa-phone"></i>
+        <span>Nomor Telepon</span>
+    </label>
+    <input type="tel" 
+           name="phone_number"
+           class="form-control-premium {% if form.phone_number.errors %}error{% endif %}"
+           value="{{ form.phone_number.value|default:user.phone_number }}"  <!-- ← TAMBAHKAN user.phone_number -->
+           placeholder="Contoh: 081234567890">
+    {% if form.phone_number.errors %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ form.phone_number.errors.0 }}
+    </div>
+    {% else %}
+    <small class="field-note">
+        <i class="fas fa-info-circle"></i>
+        Opsional. Masukkan nomor telepon aktif.
+    </small>
+    {% endif %}
+</div>
+
+<!-- First Name Field -->
+<div class="form-group-premium">
+    <label class="form-label">
+        <i class="fas fa-user-tag"></i>
+        <span>Nama Depan</span>
+    </label>
+    <input type="text" 
+           name="first_name" 
+           class="form-control-premium"
+           value="{{ form.first_name.value|default:'' }}"
+           placeholder="Masukkan nama depan">
+</div>
+
+<!-- Last Name Field -->
+<div class="form-group-premium">
+    <label class="form-label">
+        <i class="fas fa-user-tag"></i>
+        <span>Nama Belakang</span>
+    </label>
+    <input type="text" 
+           name="last_name" 
+           class="form-control-premium"
+           value="{{ form.last_name.value|default:'' }}"
+           placeholder="Masukkan nama belakang">
+</div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <a href="{% url 'users:profile' %}" class="btn-secondary-premium">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Kembali
+                                </a>
+                                <button type="submit" class="btn-primary-premium">
+                                    <i class="fas fa-save me-2"></i>
+                                    Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== PREMIUM PROFILE EDIT STYLES ===== */
+.profile-edit-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-edit-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 30%, rgba(102,126,234,0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+}
+
+/* Premium Header */
+.premium-badge {
+    animation: fadeInDown 0.8s;
+}
+
+.badge-premium {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+    display: inline-block;
+}
+
+.profile-title {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.title-gradient {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+}
+
+.title-sub {
+    font-size: 1.2rem;
+    color: #94a3b8;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.title-decoration {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.title-decoration span {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, #764ba2, #667eea, transparent);
+    animation: expandWidth 1s ease-out;
+}
+
+/* Edit Card Premium */
+.edit-card-premium {
+    position: relative;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.edit-card-premium:hover .card-glow {
+    opacity: 1;
+}
+
+.card-content {
+    position: relative;
+    padding: 2.5rem;
+    z-index: 1;
+}
+
+/* Avatar Section */
+.avatar-section {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+}
+
+.avatar-wrapper i {
+    width: 100%;
+    height: 100%;
+    font-size: 5rem;
+    color: #667eea;
+}
+
+.avatar-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(102,126,234,0.3) 0%, transparent 70%);
+    animation: pulse 2s infinite;
+    pointer-events: none;
+}
+
+.username {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.member-since {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Form Groups */
+.edit-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group-premium {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+.form-label i {
+    color: #667eea;
+    font-size: 1rem;
+}
+
+.required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+.form-control-premium {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 15px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-control-premium:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+}
+
+.form-control-premium.error {
+    border-color: #ef4444;
+    background: rgba(239,68,68,0.05);
+}
+
+.form-control-premium::placeholder {
+    color: #64748b;
+}
+
+/* Field Note & Error */
+.field-note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.field-note i {
+    color: #667eea;
+    font-size: 0.8rem;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #ef4444;
+    font-size: 0.8rem;
+    background: rgba(239,68,68,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    border-left: 3px solid #ef4444;
+}
+
+.error-message i {
+    font-size: 0.8rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}
+
+.btn-primary-premium, .btn-secondary-premium {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary-premium {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+}
+
+.btn-primary-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+}
+
+.btn-secondary-premium {
+    background: rgba(255,255,255,0.05);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-secondary-premium:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+
+@keyframes expandWidth {
+    0% { width: 0; opacity: 0; }
+    100% { width: 50px; opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .title-gradient {
+        font-size: 2rem;
+    }
+    
+    .title-sub {
+        font-size: 1rem;
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-primary-premium, .btn-secondary-premium {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .badge-premium {
+        padding: 0.35rem 1.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .avatar-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .avatar-wrapper i {
+        font-size: 4rem;
+    }
+    
+    .username {
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}

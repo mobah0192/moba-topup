@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hasil Pencarian - Web Topup{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Hasil Pencarian: "{{ query }}"</h2>
+            <p class="text-muted">Ditemukan {{ games.count }} game</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for game in games %}
+        <div class="col-md-3 mb-4">
+            <div class="card game-card h-100">
+                {% if game.icon %}
+                    <img src="{{ game.icon.url }}" class="card-img-top" alt="{{ game.name }}">
+                {% else %}
+                    <img src="{% static 'images/game-placeholder.jpg' %}" class="card-img-top" alt="{{ game.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ game.name }}</h5>
+                    <a href="{% url 'games:detail' game.slug %}" class="btn btn-primary w-100">
+                        Lihat Detail
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h3>Game tidak ditemukan</h3>
+            <p class="text-muted">Coba kata kunci lain</p>
+            <a href="{% url 'games:list' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Game
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
