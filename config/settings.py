@@ -187,6 +187,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -277,15 +278,31 @@ if not DEBUG:
         '.vercel.app',
         '.railway.app',
         'moba-topup.up.railway.app',
+        os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
+        ]
+         # Trusted origins untuk CSRF
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.railway.app',
+        'https://' + os.environ.get('RAILWAY_PUBLIC_DOMAIN', ''),
+    
 
     ]
 
 # Database configuration for Railway
 if os.environ.get('DATABASE_URL'):
+    import dj_database_url
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600,
         conn_health_checks=True,
+        ssl_require=True  # Tambahkan untuk Railway
     )
     print("Using PostgreSQL database from Railway")
 else:
     print("Using SQLite database")
+    # Database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
