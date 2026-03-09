@@ -425,13 +425,16 @@ All core systems including **authentication, shopping cart, checkout, payment in
 
 ---
 
+```text
 WEB_TOPUP/
-├── apps/                               # Django applications
-│   ├── core/                           # Core functionality
-│   │   ├── management/                  # Custom commands
-│   │   ├── migrations/                   # Database migrations
-│   │   ├── templatetags/                 # Custom template tags
-│   │   ├── utils/                        # Utility functions
+│
+├── apps/                         # Django applications
+│   │
+│   ├── core/                     # Core functionality
+│   │   ├── management/           # Custom commands
+│   │   ├── migrations/           # Database migrations
+│   │   ├── templatetags/         # Custom template tags
+│   │   ├── utils/                # Utility functions
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── apps.py
@@ -439,73 +442,76 @@ WEB_TOPUP/
 │   │   ├── tests.py
 │   │   └── views.py
 │   │
-│   ├── games/                           # Game management
+│   ├── games/                    # Game management
 │   │   ├── migrations/
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── apps.py
-│   │   ├── models.py                      # Game, Category, Item, Article
+│   │   ├── models.py             # Game, Category, Item, Article
 │   │   ├── tests.py
-│   │   ├── urls.py                        # Game URLs
-│   │   └── views.py                       # Game views
+│   │   ├── urls.py               # Game URLs
+│   │   └── views.py              # Game views
 │   │
-│   ├── orders/                           # Order & payment
-│   │   ├── api/                           # API endpoints
-│   │   ├── fixtures/                       # Sample data
+│   ├── orders/                   # Order & payment
+│   │   ├── api/                  # API endpoints
+│   │   ├── fixtures/             # Sample data
 │   │   ├── migrations/
-│   │   ├── services/                       # Midtrans service
+│   │   ├── services/
 │   │   │   └── midtrans_service.py
 │   │   ├── tests/
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── apps.py
-│   │   ├── cart.py                         # Shopping cart logic
-│   │   ├── forms.py                        # Order forms
-│   │   ├── models.py                       # Order, PaymentMethod
-│   │   ├── urls.py                         # Order URLs
-│   │   └── views.py                        # Cart, checkout, payment
+│   │   ├── cart.py               # Shopping cart logic
+│   │   ├── forms.py              # Order forms
+│   │   ├── models.py             # Order, PaymentMethod
+│   │   ├── urls.py               # Order URLs
+│   │   └── views.py              # Cart, checkout, payment
 │   │
-│   └── users/                            # User management
+│   └── users/                    # User management
 │       ├── migrations/
 │       ├── tests/
 │       ├── __init__.py
-│       ├── admin.py                        # User admin
+│       ├── admin.py              # User admin
 │       ├── apps.py
-│       ├── forms.py                        # User forms
-│       ├── models.py                       # CustomUser model
-│       ├── urls.py                         # User URLs
-│       └── views.py                        # Auth views
+│       ├── forms.py              # User forms
+│       ├── models.py             # CustomUser model
+│       ├── urls.py               # User URLs
+│       └── views.py              # Auth views
 │
-├── config/                               # Project configuration
+├── config/                       # Project configuration
 │   ├── __init__.py
 │   ├── asgi.py
-│   ├── settings.py                        # Django settings
-│   ├── urls.py                            # Main URLs
-│   └── wsgi.py                            # WSGI config
+│   ├── settings.py               # Django settings
+│   ├── urls.py                   # Main URLs
+│   └── wsgi.py                   # WSGI config
 │
-├── static/                                # Static files
-│   ├── audio/                              # Background music
+├── static/                       # Static files
+│   ├── audio/                    # Background music
 │   ├── css/
-│   │   └── style.css                       # Master stylesheet
-│   ├── images/                             # Icons and images
+│   │   └── style.css             # Master stylesheet
+│   ├── images/                   # Icons and images
 │   ├── js/
-│   │   ├── hero-video.js                    # Video background
-│   │   ├── music.js                         # Audio player
-│   │   ├── password-validation.js           # Password strength
-│   │   └── script.js                        # Master JavaScript
-│   └── videos/                              # Background videos
+│   │   ├── hero-video.js
+│   │   ├── music.js
+│   │   ├── password-validation.js
+│   │   └── script.js             # Master JavaScript
+│   └── videos/                   # Background videos
 │
-├── templates/                             # HTML templates
-│   ├── base.html                           # Base template
+├── templates/                    # HTML templates
+│   ├── base.html
+│   │
 │   ├── games/
 │   │   ├── article_detail.html
 │   │   ├── article_list.html
 │   │   ├── game_detail.html
 │   │   ├── game_list.html
 │   │   └── search.html
+│   │
 │   ├── includes/
 │   │   ├── footer.html
 │   │   └── navbar.html
+│   │
 │   ├── orders/
 │   │   ├── cart_detail.html
 │   │   ├── checkout.html
@@ -514,6 +520,7 @@ WEB_TOPUP/
 │   │   ├── order_detail.html
 │   │   ├── order_list.html
 │   │   └── order_payment.html
+│   │
 │   └── users/
 │       ├── auth_base.html
 │       ├── login.html
@@ -521,22 +528,19 @@ WEB_TOPUP/
 │       ├── profile_edit.html
 │       └── register.html
 │
-├── media/                                 # User uploaded files
+├── media/                        # User uploaded files
 │   ├── articles/
 │   ├── games/
 │   └── payments/
 │
-├── venv/                                  # Virtual environment
-├── htmlcov/                               # Coverage reports
-├── .env                                    # Environment variables
-├── .env.example                            # Example environment
-├── .gitignore                              # Git ignore file
-├── backup_before_reset.json                 # Database backup
-├── cek_user.py                             # Utility script
-├── db.sqlite3                              # SQLite database
-├── manage.py                               # Django CLI
-├── requirements.txt                        # Dependencies
-└── TESTING.md                              # Testing checklist
+├── htmlcov/                      # Coverage reports
+├── .env.example
+├── .gitignore
+├── backup_before_reset.json
+├── manage.py
+├── requirements.txt
+└── TESTING.md
+```
 
 ---
 
