@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Load file .env
 load_dotenv()
@@ -259,3 +260,29 @@ MIDTRANS_CLIENT_KEY = os.getenv('MIDTRANS_CLIENT_KEY')
 MIDTRANS_SERVER_KEY = os.getenv('MIDTRANS_SERVER_KEY')
 MIDTRANS_IS_PRODUCTION = os.getenv('MIDTRANS_IS_PRODUCTION') == 'True'
 MIDTRANS_SNAP_URL = 'https://app.sandbox.midtrans.com/snap/v2/vtweb/' if not MIDTRANS_IS_PRODUCTION else 'https://app.midtrans.com/snap/v2/vtweb/'
+
+
+# ===== PRODUCTION SETTINGS FOR RAILWAY =====
+# Security settings for production
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    ALLOWED_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        '.vercel.app',
+        '.railway.app',
+        'moba-topup.up.railway.app',
+    ]
+
+# Database configuration for Railway
+if os.environ.get('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+    print("Using PostgreSQL database from Railway")
+else:
+    print("Using SQLite database")
