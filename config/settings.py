@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.getenv('DEBUG') == 'False'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.railway.app']
 
@@ -280,6 +280,7 @@ if not DEBUG:
         'moba-topup.up.railway.app',
         os.environ.get('RAILWAY_PUBLIC_DOMAIN', ''),
         'healthcheck.railway.app',
+        'mobah0192.pythonanywhere.com',
         ]
          # Trusted origins untuk CSRF
     CSRF_TRUSTED_ORIGINS = [
