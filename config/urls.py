@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')), 
-    path('', include('apps.core.urls')),
     path('', lambda request: redirect('games:list')),  # Redirect ke halaman games
     path('games/', include('apps.games.urls')),
     path('users/', include('apps.users.urls')),
