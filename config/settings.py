@@ -278,7 +278,8 @@ if not DEBUG:
         '.vercel.app',
         '.railway.app',
         'moba-topup.up.railway.app',
-        os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
+        os.environ.get('RAILWAY_PUBLIC_DOMAIN', ''),
+        'healthcheck.railway.app',
         ]
          # Trusted origins untuk CSRF
     CSRF_TRUSTED_ORIGINS = [
