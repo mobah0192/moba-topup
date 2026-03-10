@@ -15,7 +15,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.pythonanywhere.com']
+ALLOWED_HOSTS = [
+'localhost',
+'127.0.0.1',
+'mobah0192.pythonanywhere.com'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -102,6 +106,8 @@ JAZZMIN_UI_THEMES = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -109,7 +115,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
@@ -184,7 +189,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -272,16 +277,7 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    ALLOWED_HOSTS = [
-        'localhost',
-        '127.0.0.1',
-        '.vercel.app',
-        '.railway.app',
-        'moba-topup.up.railway.app',
-        os.environ.get('RAILWAY_PUBLIC_DOMAIN', ''),
-        'healthcheck.railway.app',
-        'mobah0192.pythonanywhere.com',
-        ]
+
          # Trusted origins untuk CSRF
     CSRF_TRUSTED_ORIGINS = [
         'https://*.railway.app',
